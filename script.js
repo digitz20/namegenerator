@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const noEmailsMessage = document.getElementById('noEmailsMessage');
 
     let emails = [];
-    const SEND_INTERVAL = 8 * 60 * 1000; // 8 minutes in milliseconds
+    const SEND_INTERVAL = 1 * 1000; // 1 second in milliseconds
     let sendIntervalId = null;
     let emailTemplateContent = '';
 
