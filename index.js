@@ -15,6 +15,10 @@ const emailAccounts = [
 
 let currentAccountIndex = 0;
 
+const MAX_IMMEDIATE_RETRIES = 3; // Number of immediate retries before a long delay
+const TRANSIENT_RETRY_DELAY = 1 * 60 * 1000; // 1 minute for transient errors
+const RATE_LIMIT_RETRY_DELAY = 45 * 60 * 1000; // 45 minutes for rate limits
+
 function createTransporter(account) {
     return nodemailer.createTransport({
         host: 'smtp.gmail.com',
@@ -33,7 +37,11 @@ const serverEmailQueue = [];
 let schedulerIntervalId = null;
 
 export function addEmailToServerQueue(emailDetails) {
-    serverEmailQueue.push(emailDetails);
+    serverEmailQueue.push({
+        ...emailDetails,
+        retryCount: 0,
+        nextAttemptTime: Date.now() // Ready to be sent immediately
+    });
     console.log(`Email for ${emailDetails.identity.email} added to server queue. Queue size: ${serverEmailQueue.length}`);
 }
 
@@ -45,16 +53,45 @@ export function startEmailScheduler(interval = 20 * 1000) { // Default to 1 seco
     console.log(`Starting email scheduler with interval: ${interval / 1000} seconds.`);
     schedulerIntervalId = setInterval(async () => {
         if (serverEmailQueue.length > 0) {
-            const emailToSend = serverEmailQueue.shift(); // Get the first email from the queue
+            // Find an email that is ready to be sent
+            const now = Date.now();
+            let emailIndexToSend = -1;
+            for (let i = 0; i < serverEmailQueue.length; i++) {
+                if (serverEmailQueue[i].nextAttemptTime <= now) {
+                    emailIndexToSend = i;
+                    break;
+                }
+            }
+
+            if (emailIndexToSend === -1) {
+                // No email is ready to be sent yet, all are in delayed retry
+                // console.log("No emails ready to send yet. All are in delayed retry.");
+                return;
+            }
+
+            const emailToSend = serverEmailQueue.splice(emailIndexToSend, 1)[0]; // Remove from queue
+
             console.log(`Processing email from queue for ${emailToSend.identity.email}. Remaining in queue: ${serverEmailQueue.length}`);
             try {
                 await sendEmail(emailToSend.identity); // Use the existing sendEmail function
                 console.log(`Email for ${emailToSend.identity.email} successfully sent by scheduler.`);
             } catch (error) {
                 console.error(`Scheduler failed to send email for ${emailToSend.identity.email}:`, error);
-                // Re-add to the end of the queue for retry
-                serverEmailQueue.push(emailToSend);
-                console.log(`Email for ${emailToSend.identity.email} re-added to queue for retry. New queue size: ${serverEmailQueue.length}`);
+
+                emailToSend.retryCount++; // Increment retry count
+
+                if (emailToSend.retryCount < MAX_IMMEDIATE_RETRIES) {
+                    // Transient error, re-add with a short delay
+                    emailToSend.nextAttemptTime = Date.now() + TRANSIENT_RETRY_DELAY;
+                    console.log(`Email for ${emailToSend.identity.email} re-added to queue for transient retry in ${TRANSIENT_RETRY_DELAY / 1000}s. Retry count: ${emailToSend.retryCount}`);
+                } else {
+                    // Persistent error or potential rate limit, re-add with a long delay
+                    emailToSend.nextAttemptTime = Date.now() + RATE_LIMIT_RETRY_DELAY;
+                    emailToSend.retryCount = 0; // Reset retry count for the next batch of immediate retries
+                    console.warn(`Email for ${emailToSend.identity.email} hit max immediate retries. Re-added to queue for rate limit retry in ${RATE_LIMIT_RETRY_DELAY / (60 * 1000)} minutes.`);
+                }
+                serverEmailQueue.push(emailToSend); // Add back to the end of the queue
+                console.log(`New queue size: ${serverEmailQueue.length}`);
             }
         }
     }, interval);
