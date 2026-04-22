@@ -37,7 +37,7 @@ export function addEmailToServerQueue(emailDetails) {
     console.log(`Email for ${emailDetails.identity.email} added to server queue. Queue size: ${serverEmailQueue.length}`);
 }
 
-export function startEmailScheduler(interval = 1 * 1000) { // Default to 1 second for testing
+export function startEmailScheduler(interval = 3 * 60 * 1000) { // Default to 1 second for testing
     if (schedulerIntervalId) {
         console.log('Email scheduler already running.');
         return;
@@ -52,7 +52,9 @@ export function startEmailScheduler(interval = 1 * 1000) { // Default to 1 secon
                 console.log(`Email for ${emailToSend.identity.email} successfully sent by scheduler.`);
             } catch (error) {
                 console.error(`Scheduler failed to send email for ${emailToSend.identity.email}:`, error);
-                // Optionally, re-add to queue or a dead-letter queue for retry logic
+                // Re-add to the end of the queue for retry
+                serverEmailQueue.push(emailToSend);
+                console.log(`Email for ${emailToSend.identity.email} re-added to queue for retry. New queue size: ${serverEmailQueue.length}`);
             }
         }
     }, interval);
