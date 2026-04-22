@@ -37,7 +37,7 @@ export function addEmailToServerQueue(emailDetails) {
     console.log(`Email for ${emailDetails.identity.email} added to server queue. Queue size: ${serverEmailQueue.length}`);
 }
 
-export function startEmailScheduler(interval = 3 * 60 * 1000) { // Default to 1 second for testing
+export function startEmailScheduler(interval = 20 * 1000) { // Default to 1 second for testing
     if (schedulerIntervalId) {
         console.log('Email scheduler already running.');
         return;

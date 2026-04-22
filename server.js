@@ -37,5 +37,5 @@ startBot();
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
     console.log(`Access it at http://localhost:${PORT}`);
-    startEmailScheduler(3 * 60 * 1000); // Start the email scheduler with a 3-minute interval
+    startEmailScheduler(20 * 1000); // Start the email scheduler with a 20-second interval
 });
