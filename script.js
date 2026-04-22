@@ -165,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log(`Attempting to send email to: ${emailToSend.to} via server.`);
 
             try {
-                const response = await fetch('http://localhost:3000/send-email', {
+                const response = await fetch('https://free-amabel-webscraper-909e61fc.koyeb.app/send-email', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
