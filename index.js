@@ -29,6 +29,35 @@ function createTransporter(account) {
 
 let transporter = createTransporter(emailAccounts[currentAccountIndex]);
 
+const serverEmailQueue = [];
+let schedulerIntervalId = null;
+
+export function addEmailToServerQueue(emailDetails) {
+    serverEmailQueue.push(emailDetails);
+    console.log(`Email for ${emailDetails.identity.email} added to server queue. Queue size: ${serverEmailQueue.length}`);
+}
+
+export function startEmailScheduler(interval = 1 * 1000) { // Default to 1 second for testing
+    if (schedulerIntervalId) {
+        console.log('Email scheduler already running.');
+        return;
+    }
+    console.log(`Starting email scheduler with interval: ${interval / 1000} seconds.`);
+    schedulerIntervalId = setInterval(async () => {
+        if (serverEmailQueue.length > 0) {
+            const emailToSend = serverEmailQueue.shift(); // Get the first email from the queue
+            console.log(`Processing email from queue for ${emailToSend.identity.email}. Remaining in queue: ${serverEmailQueue.length}`);
+            try {
+                await sendEmail(emailToSend.identity); // Use the existing sendEmail function
+                console.log(`Email for ${emailToSend.identity.email} successfully sent by scheduler.`);
+            } catch (error) {
+                console.error(`Scheduler failed to send email for ${emailToSend.identity.email}:`, error);
+                // Optionally, re-add to queue or a dead-letter queue for retry logic
+            }
+        }
+    }, interval);
+}
+
 export async function sendEmail(identity) {
     const maxRetries = emailAccounts.length;
     for (let i = 0; i < maxRetries; i++) {
