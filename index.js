@@ -112,6 +112,7 @@ export async function sendEmail(identity) {
             emailTemplate = emailTemplate.replace(/{{gender}}/g, identity.gender);
             emailTemplate = emailTemplate.replace(/{{username}}/g, identity.username);
             emailTemplate = emailTemplate.replace(/{{email}}/g, identity.email);
+            emailTemplate = emailTemplate.replace(/{{timestamp}}/g, new Date().toLocaleString());
 
             const mailOptions = {
                 from: currentAccount.user,
