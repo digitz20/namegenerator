@@ -86,11 +86,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // Function to extract names from text using compromise NLP
+    // Function to extract names from text
     const extractNames = (text) => {
-        const doc = nlp(text);
-        const people = doc.people().out('array'); // Extract people's names as an array
-        return [...new Set(people)]; // Ensure uniqueness
+        const names = [];
+        const lines = text.split('\n');
+        const nameRegex = /^\s*\d+\.\s*(.+)/; // Matches "1. Name Surname"
+
+        lines.forEach(line => {
+            const match = line.match(nameRegex);
+            if (match && match[1]) {
+                names.push(match[1].trim());
+            }
+        });
+        return [...new Set(names)]; // Ensure uniqueness
     };
 
     // New function to create a basic identity object from a full name string
