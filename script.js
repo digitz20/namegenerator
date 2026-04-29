@@ -14,16 +14,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Utility Functions ---
 
     // Function to load email template
-    const loadEmailTemplate = async () => {
+    const loadEmailTemplate = async (templatePath) => {
         try {
-            const response = await fetch('emailTemplate.html');
+            const response = await fetch(templatePath);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             emailTemplateContent = await response.text();
-            console.log('Email template loaded successfully.');
+            console.log(`Email template from ${templatePath} loaded successfully.`);
         } catch (error) {
-            console.error('Failed to load email template:', error);
+            console.error(`Failed to load email template from ${templatePath}:`, error);
             // Fallback to a default template or alert the user
             emailTemplateContent = `
                 <p>Hello {{firstName}},</p>
@@ -224,12 +224,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
 
-    processTextBtn.addEventListener('click', () => {
+    processTextBtn.addEventListener('click', async () => {
         const text = inputText.value;
         if (text.trim() === '') {
             alert('Please paste some text to process.');
             return;
         }
+
+        const emailTemplateSelector = document.getElementById('emailTemplateSelector');
+        const selectedTemplatePath = emailTemplateSelector.value;
+        await loadEmailTemplate(selectedTemplatePath); // Load the selected template
+
         const names = extractNames(text);
         if (names.length === 0) {
             alert('No names found in the provided text.');
@@ -273,7 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Load email template and then emails when the page loads
-    loadEmailTemplate().then(() => {
+    loadEmailTemplate('emailTemplate.html').then(() => {
         loadEmails();
     });
 });
