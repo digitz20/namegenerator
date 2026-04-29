@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Function to generate email content using the loaded template
-    const generateEmailContent = (identity) => {
+    const generateEmailContent = (identity, templatePath) => {
         let htmlBody = emailTemplateContent;
 
         // Replace all placeholders
@@ -130,7 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return {
             to: identity.email,
             subject,
-            body: htmlBody,
+            body: htmlBody, // Still include body for client-side display
+            templatePath, // Include templatePath
         };
     };
 
@@ -173,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify({
                         to: emailToSend.to,
                         subject: emailToSend.subject,
-                        body: emailToSend.body,
+                        templatePath: emailToSend.templatePath, // Send templatePath
                         identity: emailToSend.identity // Pass the identity object
                     }),
                 });
@@ -243,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         names.forEach(name => {
             const identity = createIdentityFromFullName(name); // Create identity from extracted name
-            const email = generateEmailContent(identity); // Pass identity to generateEmailContent
+            const email = generateEmailContent(identity, selectedTemplatePath); // Pass identity and templatePath
             addEmail(email, identity);
         });
         inputText.value = ''; // Clear the textarea after processing

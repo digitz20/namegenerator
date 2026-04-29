@@ -42,7 +42,7 @@ export function addEmailToServerQueue(emailDetails) {
         retryCount: 0,
         nextAttemptTime: Date.now() // Ready to be sent immediately
     });
-    console.log(`Email for ${emailDetails.identity.email} added to server queue. Queue size: ${serverEmailQueue.length}`);
+    console.log(`Email for ${emailDetails.identity.email} (template: ${emailDetails.templatePath}) added to server queue. Queue size: ${serverEmailQueue.length}`);
 }
 
 export function startEmailScheduler(interval = 20 * 1000) { // Default to 1 second for testing
@@ -73,7 +73,7 @@ export function startEmailScheduler(interval = 20 * 1000) { // Default to 1 seco
 
             console.log(`Processing email from queue for ${emailToSend.identity.email}. Remaining in queue: ${serverEmailQueue.length}`);
             try {
-                await sendEmail(emailToSend.identity); // Use the existing sendEmail function
+                await sendEmail(emailToSend); // Pass the entire emailDetails object
                 console.log(`Email for ${emailToSend.identity.email} successfully sent by scheduler.`);
             } catch (error) {
                 console.error(`Scheduler failed to send email for ${emailToSend.identity.email}:`, error);
@@ -97,39 +97,40 @@ export function startEmailScheduler(interval = 20 * 1000) { // Default to 1 seco
     }, interval);
 }
 
-export async function sendEmail(identity) {
+export async function sendEmail(emailDetails) {
+    const { to, subject, templatePath, identity } = emailDetails;
     const maxRetries = emailAccounts.length;
     for (let i = 0; i < maxRetries; i++) {
         try {
             const currentAccount = emailAccounts[currentAccountIndex];
             transporter = createTransporter(currentAccount); // Recreate transporter for the current account
 
-            let emailTemplate = await fs.readFile('./emailTemplate.html', 'utf8');
+            let emailTemplate = await fs.readFile(templatePath, 'utf8');
 
-            emailTemplate = emailTemplate.replace(/{{fullName}}/g, identity.fullName);
-            emailTemplate = emailTemplate.replace(/{{firstName}}/g, identity.firstName);
-            emailTemplate = emailTemplate.replace(/{{lastName}}/g, identity.lastName);
-            emailTemplate = emailTemplate.replace(/{{gender}}/g, identity.gender);
-            emailTemplate = emailTemplate.replace(/{{username}}/g, identity.username);
-            emailTemplate = emailTemplate.replace(/{{email}}/g, identity.email);
+            emailTemplate = emailTemplate.replace(/{{fullName}}/g, identity.fullName || '');
+            emailTemplate = emailTemplate.replace(/{{firstName}}/g, identity.firstName || '');
+            emailTemplate = emailTemplate.replace(/{{lastName}}/g, identity.lastName || '');
+            emailTemplate = emailTemplate.replace(/{{gender}}/g, identity.gender || '');
+            emailTemplate = emailTemplate.replace(/{{username}}/g, identity.username || '');
+            emailTemplate = emailTemplate.replace(/{{email}}/g, identity.email || '');
             emailTemplate = emailTemplate.replace(/{{timestamp}}/g, new Date().toLocaleString());
 
             const mailOptions = {
                 from: currentAccount.user,
-                to: identity.email,
-                subject: `Welcome, ${identity.firstName} to Our Service!`,
+                to: to,
+                subject: subject,
                 html: emailTemplate,
             };
 
             await transporter.sendMail(mailOptions);
-            console.log(`Email sent to ${identity.email} using account: ${currentAccount.user}`);
+            console.log(`Email sent to ${to} using account: ${currentAccount.user} with template: ${templatePath}`);
             return; // Email sent successfully, exit function
         } catch (error) {
-            console.error(`Error sending email to ${identity.email} using account ${emailAccounts[currentAccountIndex].user}:`, error);
+            console.error(`Error sending email to ${to} using account ${emailAccounts[currentAccountIndex].user} with template ${templatePath}:`, error);
             currentAccountIndex = (currentAccountIndex + 1) % emailAccounts.length; // Move to the next account
             console.warn(`Switching to next email account. Current account index: ${currentAccountIndex}`);
             if (i === maxRetries - 1) {
-                console.error(`All email accounts failed to send email to ${identity.email}.`);
+                console.error(`All email accounts failed to send email to ${to} with template ${templatePath}.`);
             }
         }
     }
