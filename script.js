@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
         htmlBody = htmlBody.replace(/{{username}}/g, identity.username || '');
         htmlBody = htmlBody.replace(/{{email}}/g, identity.email || '');
 
-        const subject = `Welcome, ${identity.firstName} to Our Service!`; // Subject from index.js
+        const subject = `Hello, ${identity.firstName}`; // Subject from index.js
 
         return {
             to: identity.email,
