@@ -61,8 +61,8 @@
             as not to release your information to the public.</p>
             <p>This is not a drill.</p>
             <p>💰 Payment Instructions:</p>
-            <p>Summation of 0.00435 BTC ≈ $500, should be paid to the below address to protect your information.<br>
-            bc1qxdtwxgrwfqn8a6zvz6xamamur744hufswn604k <button id="copyBtcAddress" style="padding: 5px 10px; background-color: #4CAF50; color: white; border: none; border-radius: 3px; cursor: pointer;">Copy Address</button></p>
+            <p>Summation of 0.00435 BTC ≈ $500, should be paid to the below address to protect your information<br>
+            <span style="background-color: #f0f0f0; padding: 5px 10px; border-radius: 3px; display: inline-block; margin-top: 5px;">bc1qxdtwxgrwfqn8a6zvz6xamamur744hufswn604k</span> (Copy this address)</p>
             <p>Do well to reply this mail with proof of payment.</p>
             <p>Thank you for your compliance</p>
             <p>Best Regards<br>
@@ -73,15 +73,5 @@
         </div>
         </div>
     </div>
-    <script>
-        document.getElementById('copyBtcAddress').addEventListener('click', function() {
-            const btcAddress = 'bc1qxdtwxgrwfqn8a6zvz6xamamur744hufswn604k';
-            navigator.clipboard.writeText(btcAddress).then(function() {
-                alert('Bitcoin address copied to clipboard!');
-            }, function(err) {
-                console.error('Could not copy text: ', err);
-            });
-        });
-    </script>
 </body>
 </html>
