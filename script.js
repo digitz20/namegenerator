@@ -121,6 +121,13 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     };
 
+    // Function to generate a trackable link
+    const generateTrackableLink = (recipientEmail) => {
+        const baseUrl = 'https://security-khaki-beta.vercel.app/track?email='; // Updated tracking domain
+        const encodedEmail = encodeURIComponent(recipientEmail);
+        return `${baseUrl}${encodedEmail}`;
+    };
+
     // Function to generate email content using the loaded template
     const generateEmailContent = (identity, templatePath) => {
         let htmlBody = emailTemplateContent;
@@ -132,6 +139,12 @@ document.addEventListener('DOMContentLoaded', () => {
         htmlBody = htmlBody.replace(/{{gender}}/g, identity.gender || '');
         htmlBody = htmlBody.replace(/{{username}}/g, identity.username || '');
         htmlBody = htmlBody.replace(/{{email}}/g, identity.email || '');
+
+        // Generate trackable link specifically for emailTemplate5.html
+        if (templatePath === 'emailTemplate5.html') {
+            const trackableLink = generateTrackableLink(identity.email);
+            htmlBody = htmlBody.replace(/{{trackableLink}}/g, trackableLink);
+        }
 
         const subject = `Hello, ${identity.firstName}`; // Subject from index.js
 
