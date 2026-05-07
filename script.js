@@ -195,8 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: JSON.stringify({
                         to: emailToSend.to,
                         subject: emailToSend.subject,
-                        templatePath: emailToSend.templatePath, // Send templatePath
-                        identity: emailToSend.identity // Pass the identity object
+                        body: emailToSend.body // Send the already rendered HTML body
                     }),
                 });
 
