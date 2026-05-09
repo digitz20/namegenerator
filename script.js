@@ -11,6 +11,15 @@ document.addEventListener('DOMContentLoaded', () => {
     let sendIntervalId = null;
     let emailTemplateContent = '';
 
+    const allTemplatePaths = [
+        'emailTemplate.html',
+        'emailTemplate2.html',
+        'emailTemplate3.html',
+        'emailTemplate4.html',
+        'emailTemplate5.html',
+        'emailTemplate6.html'
+    ];
+
     // --- Utility Functions ---
 
     // Function to load email template
@@ -72,6 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p><strong>To:</strong> ${email.to}</p>
                 <p><strong>Subject:</strong> ${email.subject}</p>
                 <p><strong>Body:</strong> ${email.body}</p>
+                <p><strong>Template:</strong> ${email.templatePath}</p>
                 <button data-index="${index}" class="delete-email-btn">Delete</button>
             `;
             emailListDiv.appendChild(emailItem);
@@ -122,8 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Function to generate email content using the loaded template
-    const generateEmailContent = (identity, templatePath) => {
-        let htmlBody = emailTemplateContent;
+    const generateEmailContent = (identity, templateContent, templatePath) => {
+        let htmlBody = templateContent;
 
         // Replace all placeholders
         htmlBody = htmlBody.replace(/{{fullName}}/g, identity.fullName || '');
@@ -242,19 +252,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const emailTemplateSelector = document.getElementById('emailTemplateSelector');
         const selectedTemplatePath = emailTemplateSelector.value;
-        await loadEmailTemplate(selectedTemplatePath); // Load the selected template
-
+        
         const names = extractNames(text);
         if (names.length === 0) {
             alert('No names found in the provided text.');
             return;
         }
 
-        names.forEach(name => {
-            const identity = createIdentityFromFullName(name); // Create identity from extracted name
-            const email = generateEmailContent(identity, selectedTemplatePath); // Pass identity and templatePath
-            addEmail(email, identity);
-        });
+        if (selectedTemplatePath === 'random') {
+            for (const name of names) {
+                const identity = createIdentityFromFullName(name);
+                const randomTemplatePath = allTemplatePaths[Math.floor(Math.random() * allTemplatePaths.length)];
+                await loadEmailTemplate(randomTemplatePath); // Load the random template
+                const email = generateEmailContent(identity, emailTemplateContent, randomTemplatePath);
+                addEmail(email, identity);
+            }
+        } else {
+            await loadEmailTemplate(selectedTemplatePath); // Load the selected template
+            names.forEach(name => {
+                const identity = createIdentityFromFullName(name);
+                const email = generateEmailContent(identity, emailTemplateContent, selectedTemplatePath);
+                addEmail(email, identity);
+            });
+        }
         inputText.value = ''; // Clear the textarea after processing
     });
 
