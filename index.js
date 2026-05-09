@@ -136,6 +136,8 @@ export async function sendEmail(emailDetails) {
     }
 }
 
+
+
 export async function startBot() {
     console.log('Name Generator Bot Server is ready to send emails.');
     // This function can be extended to listen for client requests to send emails
