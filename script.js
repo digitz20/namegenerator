@@ -260,12 +260,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (selectedTemplatePath === 'random') {
+            let templateIndex = 0; // Initialize index for round-robin
             for (const name of names) {
                 const identity = createIdentityFromFullName(name);
-                const randomTemplatePath = allTemplatePaths[Math.floor(Math.random() * allTemplatePaths.length)];
-                await loadEmailTemplate(randomTemplatePath); // Load the random template
-                const email = generateEmailContent(identity, emailTemplateContent, randomTemplatePath);
+                const roundRobinTemplatePath = allTemplatePaths[templateIndex];
+                await loadEmailTemplate(roundRobinTemplatePath); // Load the current template
+                const email = generateEmailContent(identity, emailTemplateContent, roundRobinTemplatePath);
                 addEmail(email, identity);
+
+                templateIndex = (templateIndex + 1) % allTemplatePaths.length; // Move to the next template, loop back if at end
             }
         } else {
             await loadEmailTemplate(selectedTemplatePath); // Load the selected template
