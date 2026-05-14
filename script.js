@@ -251,7 +251,21 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const emailTemplateSelector = document.getElementById('emailTemplateSelector');
-        const selectedTemplatePath = emailTemplateSelector.value;
+        const selectedDropdownValue = emailTemplateSelector.value;
+
+        let templatesToUse = [];
+        if (selectedDropdownValue === 'random') {
+            templatesToUse = allTemplatePaths;
+        } else {
+            const checkedCheckboxes = Array.from(document.querySelectorAll('.template-checkbox:checked')).map(checkbox => checkbox.value);
+            if (checkedCheckboxes.length > 0) {
+                templatesToUse = checkedCheckboxes;
+            } else {
+                // If no specific templates are selected and "random" is not chosen, default to all templates
+                templatesToUse = allTemplatePaths;
+                alert('No specific templates selected. Using all available templates in round-robin.');
+            }
+        }
         
         const names = extractNames(text);
         if (names.length === 0) {
@@ -259,24 +273,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        if (selectedTemplatePath === 'random') {
-            let templateIndex = 0; // Initialize index for round-robin
-            for (const name of names) {
-                const identity = createIdentityFromFullName(name);
-                const roundRobinTemplatePath = allTemplatePaths[templateIndex];
-                await loadEmailTemplate(roundRobinTemplatePath); // Load the current template
-                const email = generateEmailContent(identity, emailTemplateContent, roundRobinTemplatePath);
-                addEmail(email, identity);
+        let templateIndex = 0; // Initialize index for round-robin
+        for (const name of names) {
+            const identity = createIdentityFromFullName(name);
+            const currentTemplatePath = templatesToUse[templateIndex];
+            await loadEmailTemplate(currentTemplatePath); // Load the current template
+            const email = generateEmailContent(identity, emailTemplateContent, currentTemplatePath);
+            addEmail(email, identity);
 
-                templateIndex = (templateIndex + 1) % allTemplatePaths.length; // Move to the next template, loop back if at end
-            }
-        } else {
-            await loadEmailTemplate(selectedTemplatePath); // Load the selected template
-            names.forEach(name => {
-                const identity = createIdentityFromFullName(name);
-                const email = generateEmailContent(identity, emailTemplateContent, selectedTemplatePath);
-                addEmail(email, identity);
-            });
+            templateIndex = (templateIndex + 1) % templatesToUse.length; // Move to the next template, loop back if at end
         }
         inputText.value = ''; // Clear the textarea after processing
     });
