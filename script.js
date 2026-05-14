@@ -252,19 +252,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const emailTemplateSelector = document.getElementById('emailTemplateSelector');
         const selectedDropdownValue = emailTemplateSelector.value;
+        const checkedCheckboxes = Array.from(document.querySelectorAll('.template-checkbox:checked')).map(checkbox => checkbox.value);
 
         let templatesToUse = [];
+
         if (selectedDropdownValue === 'random') {
             templatesToUse = allTemplatePaths;
+        } else if (checkedCheckboxes.length > 0) {
+            templatesToUse = checkedCheckboxes;
         } else {
-            const checkedCheckboxes = Array.from(document.querySelectorAll('.template-checkbox:checked')).map(checkbox => checkbox.value);
-            if (checkedCheckboxes.length > 0) {
-                templatesToUse = checkedCheckboxes;
-            } else {
-                // If no specific templates are selected and "random" is not chosen, default to all templates
-                templatesToUse = allTemplatePaths;
-                alert('No specific templates selected. Using all available templates in round-robin.');
-            }
+            // If a specific template is selected in the dropdown, and no checkboxes are checked
+            templatesToUse = [selectedDropdownValue];
+            // No alert needed here, as this is a valid single selection
         }
         
         const names = extractNames(text);
