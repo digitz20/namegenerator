@@ -181,6 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
             subject,
             body: htmlBody, // Still include body for client-side display
             templatePath, // Include templatePath
+            senderName: currentSenderName, // Include the current sender name
         };
     };
 
