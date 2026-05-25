@@ -116,7 +116,7 @@ export async function sendEmail(emailDetails) {
             emailTemplate = emailTemplate.replace(/{{timestamp}}/g, new Date().toLocaleString());
 
             const mailOptions = {
-                from: currentAccount.user,
+                from: senderName ? `${senderName} <${currentAccount.user}>` : currentAccount.user,
                 to: to,
                 subject: subject,
                 html: emailTemplate,
