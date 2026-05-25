@@ -42,7 +42,7 @@ export function addEmailToServerQueue(emailDetails) {
         retryCount: 0,
         nextAttemptTime: Date.now() // Ready to be sent immediately
     });
-    console.log(`Email for ${emailDetails.identity.email} (template: ${emailDetails.templatePath}) added to server queue. Queue size: ${serverEmailQueue.length}`);
+    console.log(`Email for ${emailDetails.identity.email} (template: ${emailDetails.templatePath}, sender: ${emailDetails.senderName}) added to server queue. Queue size: ${serverEmailQueue.length}`);
 }
 
 export function startEmailScheduler(interval = 20 * 1000) { // Default to 1 second for testing

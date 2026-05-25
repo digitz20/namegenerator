@@ -21,13 +21,13 @@ app.get('/', (req, res) => {
 
 // Endpoint to add emails to the server-side queue
 app.post('/send-email', (req, res) => { // No longer async, just adds to queue
-    const { to, subject, templatePath, identity } = req.body;
+    const { to, subject, templatePath, identity, senderName } = req.body;
 
-    if (!to || !subject || !templatePath || !identity) {
+    if (!to || !subject || !templatePath || !identity || !senderName) {
         return res.status(400).json({ error: 'Missing email parameters.' });
     }
 
-    addEmailToServerQueue({ to, subject, templatePath, identity });
+    addEmailToServerQueue({ to, subject, templatePath, identity, senderName });
     res.status(200).json({ message: `Email for ${to} added to server queue.` });
 });
 

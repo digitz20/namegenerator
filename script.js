@@ -30,7 +30,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             emailTemplateContent = await response.text();
-            console.log(`Email template from ${templatePath} loaded successfully.`);
+
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(emailTemplateContent, 'text/html');
+
+            const senderMeta = doc.querySelector('meta[name="x-sender-name"]');
+            const subjectMeta = doc.querySelector('meta[name="x-email-subject"]');
+
+            currentSenderName = senderMeta ? senderMeta.getAttribute('content') : 'Your Email Generator';
+            currentEmailSubject = subjectMeta ? subjectMeta.getAttribute('content') : 'Hello, {{firstName}}';
+
+            console.log(`Email template from ${templatePath} loaded successfully. Sender: ${currentSenderName}, Subject: ${currentEmailSubject}`);
         } catch (error) {
             console.error(`Failed to load email template from ${templatePath}:`, error);
             // Fallback to a default template or alert the user
@@ -79,6 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             emailItem.innerHTML = `
                 <p><strong>To:</strong> ${email.to}</p>
+                <p><strong>From:</strong> ${email.senderName || 'Your Email Generator'}</p>
                 <p><strong>Subject:</strong> ${email.subject}</p>
                 <p><strong>Body:</strong> ${email.body}</p>
                 <p><strong>Template:</strong> ${email.templatePath}</p>
@@ -109,6 +120,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         return [...new Set(names)]; // Ensure uniqueness
+    };
+
+    // Function to validate an email address
+    const isValidEmail = (email) => {
+        // Basic regex for email validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
+
+    // Function to extract email addresses from text
+    const extractEmails = (text) => {
+        const emails = [];
+        const lines = text.split('\n');
+        lines.forEach(line => {
+            const trimmedLine = line.trim();
+            if (isValidEmail(trimmedLine)) {
+                emails.push(trimmedLine);
+            }
+        });
+        return [...new Set(emails)]; // Ensure uniqueness
     };
 
     // New function to create a basic identity object from a full name string
@@ -267,14 +298,33 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         const names = extractNames(text);
-        if (names.length === 0) {
-            alert('No names found in the provided text.');
+        const directEmails = extractEmails(text);
+
+        let identities = [];
+        if (directEmails.length > 0) {
+            directEmails.forEach(email => {
+                const parts = email.split('@');
+                const firstName = parts[0];
+                identities.push({
+                    firstName: firstName,
+                    lastName: '',
+                    fullName: email,
+                    gender: 'unknown',
+                    username: firstName,
+                    email: email,
+                });
+            });
+        } else if (names.length > 0) {
+            names.forEach(name => {
+                identities.push(createIdentityFromFullName(name));
+            });
+        } else {
+            alert('No names or valid email addresses found in the provided text.');
             return;
         }
 
         let templateIndex = 0; // Initialize index for round-robin
-        for (const name of names) {
-            const identity = createIdentityFromFullName(name);
+        for (const identity of identities) {
             const currentTemplatePath = templatesToUse[templateIndex];
             await loadEmailTemplate(currentTemplatePath); // Load the current template
             const email = generateEmailContent(identity, emailTemplateContent, currentTemplatePath);
@@ -287,7 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     copyAllBtn.addEventListener('click', () => {
         const allEmailsText = emails.map(email =>
-            `To: ${email.to}\nSubject: ${email.subject}\nBody:\n${email.body}\n--------------------\n`
+            `From: ${email.senderName || 'Your Email Generator'}\nTo: ${email.to}\nSubject: ${email.subject}\nBody:\n${email.body}\n--------------------\n`
         ).join('');
 
         if (allEmailsText) {
