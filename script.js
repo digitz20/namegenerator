@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
         htmlBody = htmlBody.replace(/{{username}}/g, identity.username || '');
         htmlBody = htmlBody.replace(/{{email}}/g, identity.email || '');
 
-        const subject = `Hello, ${identity.firstName}`; // Subject from index.js
+        const subject = currentEmailSubject.replace(/{{firstName}}/g, identity.firstName || '');
 
         return {
             to: identity.email,
