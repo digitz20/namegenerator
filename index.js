@@ -102,7 +102,7 @@ export function startEmailScheduler(interval = 20 * 1000) { // Default to 1 seco
 }
 
 export async function sendEmail(emailDetails) {
-    const { to, subject, templatePath, identity } = emailDetails;
+    const { to, subject, templatePath, identity, senderName } = emailDetails;
     const maxRetries = emailAccounts.length;
     for (let i = 0; i < maxRetries; i++) {
         try {
