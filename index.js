@@ -103,10 +103,20 @@ export function startEmailScheduler(interval = 20 * 1000) { // Default to 1 seco
 
 export async function sendEmail(emailDetails) {
     const { to, subject, templatePath, identity, senderName } = emailDetails;
-    const maxRetries = emailAccounts.length;
+
+    let accountsToUse = [];
+    if (templatePath.includes('emailTemplate4.html')) {
+        accountsToUse = [emailAccounts[0]]; // Only use EMAIL_USER_1
+    } else {
+        accountsToUse = emailAccounts.slice(1); // Use EMAIL_USER_2 and EMAIL_USER_3
+    }
+
+    const maxRetries = accountsToUse.length;
+    let currentAccountIndexForThisEmail = 0; // Local index for the accountsToUse array
+
     for (let i = 0; i < maxRetries; i++) {
         try {
-            const currentAccount = emailAccounts[currentAccountIndex];
+            const currentAccount = accountsToUse[currentAccountIndexForThisEmail];
             transporter = createTransporter(currentAccount); // Recreate transporter for the current account
 
             let emailTemplate = await fs.readFile(templatePath, 'utf8');
@@ -147,11 +157,11 @@ export async function sendEmail(emailDetails) {
             console.log(`Email sent to ${to} using account: ${currentAccount.user} with template: ${templatePath}`);
             return; // Email sent successfully, exit function
         } catch (error) {
-            console.error(`Error sending email to ${to} using account ${emailAccounts[currentAccountIndex].user} with template ${templatePath}:`, error);
-            currentAccountIndex = (currentAccountIndex + 1) % emailAccounts.length; // Move to the next account
-            console.warn(`Switching to next email account. Current account index: ${currentAccountIndex}`);
+            console.error(`Error sending email to ${to} using account ${accountsToUse[currentAccountIndexForThisEmail].user} with template ${templatePath}:`, error);
+            currentAccountIndexForThisEmail = (currentAccountIndexForThisEmail + 1) % accountsToUse.length; // Move to the next account in the filtered list
+            console.warn(`Switching to next email account in the filtered list. Current account index: ${currentAccountIndexForThisEmail}`);
             if (i === maxRetries - 1) {
-                console.error(`All email accounts failed to send email to ${to} with template ${templatePath}.`);
+                console.error(`All available email accounts failed to send email to ${to} with template ${templatePath}.`);
             }
         }
     }
