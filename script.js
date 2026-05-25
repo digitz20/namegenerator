@@ -225,7 +225,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         to: emailToSend.to,
                         subject: emailToSend.subject,
                         templatePath: emailToSend.templatePath, // Send templatePath
-                        identity: emailToSend.identity // Pass the identity object
+                        identity: emailToSend.identity, // Pass the identity object
+                        senderName: emailToSend.senderName // Pass the sender name from the email object
                     }),
                 });
 
