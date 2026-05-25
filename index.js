@@ -130,7 +130,8 @@ export async function sendEmail(emailDetails) {
             if (templatePath.includes('emailTemplate4.html')) {
                 try {
                     const response = await fetch(TESLA_GIFT_IMAGE_URL);
-                    const imageBuffer = await response.buffer();
+                    const imageArrayBuffer = await response.arrayBuffer();
+                    const imageBuffer = Buffer.from(imageArrayBuffer);
                     mailOptions.attachments = [{
                         filename: 'tesla_gift.jpg',
                         content: imageBuffer,
