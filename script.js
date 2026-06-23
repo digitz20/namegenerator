@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const senderMeta = doc.querySelector('meta[name="x-sender-name"]');
             const subjectMeta = doc.querySelector('meta[name="x-email-subject"]');
 
-            currentSenderName = senderMeta ? senderMeta.getAttribute('content') : 'Email Services';
+            currentSenderName = senderMeta ? senderMeta.getAttribute('content') : 'Board Services';
             currentEmailSubject = subjectMeta ? subjectMeta.getAttribute('content') : 'Hello, {{firstName}}';
 
             console.log(`Email template from ${templatePath} loaded successfully. Sender: ${currentSenderName}, Subject: ${currentEmailSubject}`);

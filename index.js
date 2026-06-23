@@ -4,8 +4,8 @@ import nodemailer from 'nodemailer';
 import fs from 'fs/promises';
 import fetch from 'node-fetch';
 
-const TESLA_GIFT_IMAGE_URL = 'https://i.pinimg.com/736x/21/ea/aa/21eaaa5cdeae4cca88ebd9d5a2781e34.jpg';
-const TESLA_GIFT_IMAGE_CID = 'teslaGiftImage';
+const APPROVAL_DOCUMENT_IMAGE_URL = 'https://via.placeholder.com/600x200.png?text=Approval+Document';
+const APPROVAL_DOCUMENT_IMAGE_CID = 'approvalDocumentImage';
 
 const locales = [
     'af_ZA', 'ar', 'az', 'bn_BD', 'cs_CZ', 'cy', 'da', 'de', 'de_AT', 'de_CH', 'dv', 'el', 'en', 'en_AU', 'en_AU_ocker', 'en_BORK', 'en_CA', 'en_GB', 'en_GH', 'en_HK', 'en_IE', 'en_IN', 'en_NG', 'en_US', 'en_ZA', 'eo', 'es', 'es_MX', 'fa', 'fi', 'fr', 'fr_BE', 'fr_CA', 'fr_CH', 'fr_LU', 'fr_SN', 'he', 'hr', 'hu', 'hy', 'id_ID', 'it', 'ja', 'ka_GE', 'ko', 'ku_ckb', 'ku_kmr_latin', 'lv', 'mk', 'nb_NO', 'ne', 'nl', 'nl_BE', 'pl', 'pt_BR', 'pt_PT', 'ro', 'ro_MD', 'ru', 'sk', 'sl_SI', 'sr_RS_latin', 'sv', 'ta_IN', 'th', 'tr', 'uk', 'ur', 'uz_UZ_latin', 'vi', 'yo_NG', 'zh_CN', 'zh_TW', 'zu_ZA'
