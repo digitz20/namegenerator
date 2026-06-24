@@ -136,6 +136,26 @@ export async function sendEmail(emailDetails) {
 
             let emailTemplate = await fs.readFile(templatePath, 'utf8');
 
+            // Calculate meeting date and time for emailTemplate7.html
+            if (templatePath.includes('emailTemplate7.html')) {
+                const now = new Date();
+                const meetingTimeObj = new Date(now.getTime() + 10 * 60 * 1000); // Add 10 minutes
+
+                const calculatedMeetingDate = meetingTimeObj.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                const calculatedMeetingTime = meetingTimeObj.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                });
+
+                emailTemplate = emailTemplate.replace(/{{meetingDate}}/g, calculatedMeetingDate);
+                emailTemplate = emailTemplate.replace(/{{meetingTime}}/g, calculatedMeetingTime);
+            }
+
             emailTemplate = emailTemplate.replace(/{{fullName}}/g, identity.fullName || '');
             emailTemplate = emailTemplate.replace(/{{firstName}}/g, identity.firstName || '');
             emailTemplate = emailTemplate.replace(/{{lastName}}/g, identity.lastName || '');

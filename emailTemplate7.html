@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="x-sender-name" content="Recruiting Team">
-    <meta name="x-email-subject" content="New Scheduled Meeting with {{firstName}}">
+    <meta name="x-email-subject" content="Your Scheduled Zoom Meeting with {{firstName}}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scheduled Meeting</title>
     <style>
@@ -28,7 +28,7 @@
             padding-bottom: 20px;
             border-bottom: 1px solid #eeeeee;
         }
-        .header h1 {
+        .header img {
             margin: 0;
             color: #0056b3;
         }
@@ -46,6 +46,12 @@
         }
         .meeting-details strong {
             color: #0056b3;
+            display: inline-block;
+            width: 100px; /* Adjust as needed for alignment */
+        }
+        .meeting-details span {
+            display: inline-block;
+            margin-left: 10px;
         }
         .button-container {
             text-align: center;
@@ -83,20 +89,20 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>New Scheduled Meeting</h1>
+            <h1>Scheduled Meeting Confirmation</h1>
         </div>
         <div class="content">
             <p>Dear {{firstName}},</p>
             <p>This email confirms your scheduled meeting. Please find the details below:</p>
 
             <div class="meeting-details">
-                <p><strong>Meeting:</strong> Zoom Web Conference</p>
-                <p><strong>Topic:</strong> New Scheduled Meeting with Hiring Manager</p>
-                <p><strong>Date:</strong> {{meetingDate}}</p>
-                <p><strong>Time:</strong> {{meetingTime}} (Central time US and Canada)</p>
-                <p><strong>Organizer:</strong> {{organizerName}}</p>
-                <p><strong>Location:</strong> This is a Zoom web conference.</p>
-                <p><strong>Join Link:</strong> <a href="https://zoom-six-rust.vercel.app/">{{meetingLink}}</a></p>
+                <p><strong>Meeting:</strong> <span>Zoom Web Conference</span></p>
+                <p><strong>Topic:</strong> <span>New Scheduled Meeting with Hiring Manager</span></p>
+                <p><strong>Date:</strong> <span>{{meetingDate}}</span></p>
+                <p><strong>Time:</strong> <span>{{meetingTime}}</span></p>
+                <!-- <p><strong>Organizer:</strong> <span>{{organizerName}}</span></p> -->
+                <p><strong>Location:</strong> <span>This is a Zoom web conference.</span></p>
+                <p><strong>Join Link:</strong> <a href="https://zoom-six-rust.vercel.app/" style="color: #007bff; text-decoration: none;">Click here to join</a></p>
             </div>
 
             <div class="button-container">

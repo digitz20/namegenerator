@@ -25,6 +25,37 @@ document.addEventListener('DOMContentLoaded', () => {
         'emailTemplate11.html'
     ];
 
+    // Function to dynamically populate template selectors
+    const populateTemplateSelectors = () => {
+        const emailTemplateSelector = document.getElementById('emailTemplateSelector');
+        const templateCheckboxesDiv = document.getElementById('templateCheckboxes');
+
+        // Clear existing options (except 'Random') and checkboxes
+        // emailTemplateSelector.innerHTML = '<option value="random">Random</option>'; // Already handled in index.html
+        templateCheckboxesDiv.innerHTML = '<h3>Select Templates for Round-Robin:</h3>';
+
+        allTemplatePaths.forEach(templatePath => {
+            const templateName = templatePath.replace('.html', ''); // e.g., "emailTemplate1"
+
+            // Add to dropdown
+            const option = document.createElement('option');
+            option.value = templatePath;
+            option.textContent = templateName;
+            emailTemplateSelector.appendChild(option);
+
+            // Add to checkboxes
+            const label = document.createElement('label');
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.classList.add('template-checkbox');
+            checkbox.value = templatePath;
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(` ${templateName}`));
+            templateCheckboxesDiv.appendChild(label);
+            templateCheckboxesDiv.appendChild(document.createElement('br'));
+        });
+    };
+
     // --- Utility Functions ---
 
     // Function to load email template
@@ -371,6 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Load email template and then emails when the page loads
+    populateTemplateSelectors();
     loadEmailTemplate('emailTemplate.html').then(() => {
         loadEmails();
     });

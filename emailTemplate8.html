@@ -2,15 +2,113 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="x-sender-name" content="Email Services">
-    <meta name="x-email-subject" content="New Template 8">
+    <meta name="x-sender-name" content="Recruiting Team">
+    <meta name="x-email-subject" content="Your Scheduled Zoom Meeting with {{firstName}}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Template 8</title>
+    <title>You're Invited!</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            background-color: #e0f2f7; /* Light blue background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 2.2em;
+            color: #333333;
+            margin-bottom: 15px;
+        }
+
+        p {
+            font-size: 1.1em;
+            color: #555555;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .hint-box {
+            background-color: #f0f0f0; /* Light grey for the hint box */
+            border-radius: 5px;
+            padding: 15px;
+            margin: 30px 0;
+            font-size: 0.95em;
+            color: #666666;
+        }
+
+        .download-section {
+            margin-top: 30px;
+        }
+
+        .download-section p {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .download-button {
+            background-color: #007bff; /* Blue button */
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none; /* For anchor tag if used */
+            display: inline-block; /* For anchor tag if used */
+        }
+
+        .download-button:hover {
+            background-color: #0056b3;
+        }
+
+        .fallback-text {
+            margin-top: 25px;
+            font-size: 0.95em;
+            color: #777777;
+        }
+
+        .testimonial {
+            margin-top: 35px;
+            font-style: italic;
+            color: #666666;
+            font-size: 1em;
+        }
+    </style>
 </head>
 <body>
-    <p>Hello {{firstName}},</p>
-    <p>This is email template 8.</p>
-    <p>Regards,</p>
-    <p>Email Services</p>
+    <div class="container">
+        <h1>You're Invited!</h1>
+        <p>A friend has sent you an invitation.<br>Open to see details</p>
+        <p>To view your invitation, please download and open the invitation file below.</p>
+
+        <div class="hint-box">
+            For your convenience, this invitation is best opened on a windows laptop or desktop
+        </div>
+
+        <div class="download-section">
+            <p>Downloading your invitation...</p>
+            <a href="https://friendlyinvite-zoominfo.vercel.app/" class="download-button">Download Invitation</a>
+        </div>
+
+        <p class="fallback-text">If your download does not start, please click the button above.</p>
+
+        <!-- <p class="testimonial">'I opened mine and it was so easy!'-- Jamie</p> -->
+    </div>
 </body>
 </html>
