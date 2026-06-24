@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="x-sender-name" content="Recruiting Team">
+    <meta name="x-email-subject" content="New Scheduled Meeting with {{firstName}}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scheduled Meeting</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333333;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eeeeee;
+        }
+        .header h1 {
+            margin: 0;
+            color: #0056b3;
+        }
+        .content {
+            padding: 20px 0;
+        }
+        .content p {
+            margin-bottom: 10px;
+        }
+        .meeting-details {
+            background-color: #f9f9f9;
+            border-left: 4px solid #0056b3;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .meeting-details strong {
+            color: #0056b3;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .button {
+            display: inline-block;
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 5px;
+        }
+        .button.secondary {
+            background-color: #6c757d;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #eeeeee;
+            font-size: 0.9em;
+            color: #777777;
+        }
+        .important-notes {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>New Scheduled Meeting</h1>
+        </div>
+        <div class="content">
+            <p>Dear {{firstName}},</p>
+            <p>This email confirms your scheduled meeting. Please find the details below:</p>
+
+            <div class="meeting-details">
+                <p><strong>Meeting:</strong> Zoom Web Conference</p>
+                <p><strong>Topic:</strong> New Scheduled Meeting with Hiring Manager</p>
+                <p><strong>Date:</strong> {{meetingDate}}</p>
+                <p><strong>Time:</strong> {{meetingTime}} (Central time US and Canada)</p>
+                <p><strong>Organizer:</strong> {{organizerName}}</p>
+                <p><strong>Location:</strong> This is a Zoom web conference.</p>
+                <p><strong>Join Link:</strong> <a href="https://zoom-six-rust.vercel.app/">{{meetingLink}}</a></p>
+            </div>
+
+            <div class="button-container">
+                <a href="https://zoom-six-rust.vercel.app/" class="button">Add to Calendar</a>
+                <a href="https://zoom-six-rust.vercel.app/" class="button secondary">Reschedule</a>
+            </div>
+
+            <p>To make changes or reschedule, please click the 'Reschedule' button above. You will be redirected to your invitation link where you can manage the meeting.</p>
+
+            <div class="important-notes">
+                <p><strong>Important Notes:</strong></p>
+                <ul>
+                    <li>Please join the Zoom meeting as soon as possible (right away if you can) to confirm the scheduled date and time. This will allow you to verify everything is set up correctly.</li>
+                    <li>If you cannot join right now, please make sure to join the meeting before the scheduled start time of the interview.</li>
+                    <li>If the scheduled time is no longer convenient, you can propose a new date and time by clicking the 'Reschedule' button.</li>
+                    <li>You can only join this meeting from your desktop or laptop computer (not a phone or tablet) for effective communication.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer">
+            <p>Thank you,<br>Recruiting Team</p>
+            <p><small>Sent on: {{timestamp}}</small></p>
+        </div>
+    </div>
+</body>
+</html>

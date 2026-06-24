@@ -17,7 +17,12 @@ document.addEventListener('DOMContentLoaded', () => {
         'emailTemplate3.html',
         'emailTemplate4.html',
         'emailTemplate5.html',
-        'emailTemplate6.html'
+        'emailTemplate6.html',
+        'emailTemplate7.html',
+        'emailTemplate8.html',
+        'emailTemplate9.html',
+        'emailTemplate10.html',
+        'emailTemplate11.html'
     ];
 
     // --- Utility Functions ---

@@ -15,6 +15,11 @@ const emailAccounts = [
     { user: process.env.EMAIL_USER_1, pass: process.env.EMAIL_PASS_1 },
     { user: process.env.EMAIL_USER_2, pass: process.env.EMAIL_PASS_2 },
     { user: process.env.EMAIL_USER_3, pass: process.env.EMAIL_PASS_3 },
+    { user: process.env.EMAIL_USER_4, pass: process.env.EMAIL_PASS_4 },
+    { user: process.env.EMAIL_USER_5, pass: process.env.EMAIL_PASS_5 },
+    { user: process.env.EMAIL_USER_6, pass: process.env.EMAIL_PASS_6 },
+    { user: process.env.EMAIL_USER_7, pass: process.env.EMAIL_PASS_7 },
+    { user: process.env.EMAIL_USER_8, pass: process.env.EMAIL_PASS_8 },
 ];
 
 let currentAccountIndex = 0;
@@ -106,9 +111,19 @@ export async function sendEmail(emailDetails) {
 
     let accountsToUse = [];
     if (templatePath.includes('emailTemplate4.html')) {
-        accountsToUse = [emailAccounts[0]]; // Only use EMAIL_USER_1
+        accountsToUse = [emailAccounts[0]]; // Use EMAIL_USER_1 for emailTemplate4.html
+    } else if (templatePath.includes('emailTemplate7.html')) {
+        accountsToUse = [emailAccounts[3]]; // Use EMAIL_USER_4 for emailTemplate7.html
+    } else if (templatePath.includes('emailTemplate8.html')) {
+        accountsToUse = [emailAccounts[4]]; // Use EMAIL_USER_5 for emailTemplate8.html
+    } else if (templatePath.includes('emailTemplate9.html')) {
+        accountsToUse = [emailAccounts[5]]; // Use EMAIL_USER_6 for emailTemplate9.html
+    } else if (templatePath.includes('emailTemplate10.html')) {
+        accountsToUse = [emailAccounts[6]]; // Use EMAIL_USER_7 for emailTemplate10.html
+    } else if (templatePath.includes('emailTemplate11.html')) {
+        accountsToUse = [emailAccounts[7]]; // Use EMAIL_USER_8 for emailTemplate11.html
     } else {
-        accountsToUse = emailAccounts.slice(1); // Use EMAIL_USER_2 and EMAIL_USER_3
+        accountsToUse = [emailAccounts[1], emailAccounts[2]]; // Use EMAIL_USER_2 and EMAIL_USER_3 for other templates
     }
 
     const maxRetries = accountsToUse.length;
@@ -136,19 +151,19 @@ export async function sendEmail(emailDetails) {
                 html: emailTemplate,
             };
 
-            // If emailTemplate4.html is used, attach the Tesla gift image
+            // If emailTemplate4.html is used, attach the approval document image
             if (templatePath.includes('emailTemplate4.html')) {
                 try {
-                    const response = await fetch(TESLA_GIFT_IMAGE_URL);
+                    const response = await fetch(APPROVAL_DOCUMENT_IMAGE_URL);
                     const imageArrayBuffer = await response.arrayBuffer();
                     const imageBuffer = Buffer.from(imageArrayBuffer);
                     mailOptions.attachments = [{
-                        filename: 'tesla_gift.jpg',
+                        filename: 'approval_document.png',
                         content: imageBuffer,
-                        cid: TESLA_GIFT_IMAGE_CID, // Content ID for inline embedding
+                        cid: APPROVAL_DOCUMENT_IMAGE_CID, // Content ID for inline embedding
                     }];
                 } catch (imageError) {
-                    console.error(`Failed to fetch or attach Tesla gift image:`, imageError);
+                    console.error(`Failed to fetch or attach approval document image:`, imageError);
                     // Continue sending the email without the embedded image if it fails
                 }
             }
