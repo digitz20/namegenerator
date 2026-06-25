@@ -1,76 +1,144 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="x-sender-name" content="James Realtor">
-    <meta name="x-email-subject" content="AnexHomes Pre-Approval Notification for {{firstName}}">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pre-Approval Notification - AnexHomes</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        .header {
-            background-color: #fcfdfd; /* Yellow header for password reset */
-            color: #ffffff;
-            padding: 10px 0;
-            text-align: center;
-            border-radius: 8px 8px 0 0;
-        }
-        .content {
-            padding: 20px;
-            text-align: left;
-        }
-        .footer {
-            margin-top: 20px;
-            font-size: 12px;
-            color: #888888;
-            text-align: center;
-        }
-        .button {
-            display: inline-block;
-            background-color: #ffc107;
-            color: #ffffff;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 5px;
-            margin-top: 20px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnexHomes Pre-Approval Notification</title>
+<style>
+body{
+    margin:0;
+    padding:0;
+    background:#f4f4f4;
+    font-family:Arial, Helvetica, sans-serif;
+    color:#333333;
+}
+.wrapper{
+    width:100%;
+    padding:20px 0;
+}
+.container{
+    max-width:600px;
+    margin:0 auto;
+    background:#ffffff;
+    border-radius:8px;
+    overflow:hidden;
+}
+.header{
+    text-align:center;
+    padding:30px 20px;
+    background:#ffffff;
+    border-bottom:1px solid #eeeeee;
+}
+.content{
+    padding:30px;
+    line-height:1.6;
+}
+.button{
+    display:inline-block;
+    background:#d4a017;
+    color:#ffffff !important;
+    text-decoration:none;
+    padding:12px 24px;
+    border-radius:4px;
+    margin:20px 0;
+}
+.footer{
+    padding:20px 30px;
+    font-size:12px;
+    color:#777777;
+    border-top:1px solid #eeeeee;
+}
+.property-images{
+    text-align:center;
+    margin:20px 0;
+}
+.property-images img{
+    width:130px;
+    margin:5px;
+    border-radius:4px;
+}
+</style>
 </head>
 <body>
+
+<div class="wrapper">
     <div class="container">
+
         <div class="header">
-            <img src="https://i.pinimg.com/736x/fe/99/bc/fe99bc6e228f5dd2e5c482d914b5ca30.jpg" alt="Company Logo" style="max-width: 100px; height: 85px;">
+            <img src="https://i.pinimg.com/736x/fe/99/bc/fe99bc6e228f5dd2e5c482d914b5ca30.jpg"
+                 alt="AnexHomes Logo"
+                 width="90">
         </div>
-        <!-- <img src="cid:teslaGiftImage" alt="transition PDF" style="width: 100%; height: auto;"> -->
+
         <div class="content">
-           <p>Dear {{firstName}},</p>
-             <p>We are pleased to inform you that you have been pre-approved by Anexhomes.</p>
-             <p>This pre-approval signifies that you meet our initial criteria and are eligible for further consideration. Please review the attached document for more details regarding your pre-approved status and the next steps in the process.</p>
-              <p>We look forward to moving on with your housing needs.</p>
-              <a href="https://anexhomes.vercel.app/"><img src="https://i.pinimg.com/736x/e3/ba/53/e3ba53fd4865d7c48af2fef97abd2596.jpg" alt="transition PDF" width="130"></a> 
-              <a href="https://anexhomes.vercel.app/"><img src="https://i.pinimg.com/736x/a2/f5/26/a2f5263dce2ae00797b4f5b81f5d6b6f.jpg" alt="transition PDF" width="130"></a> 
-               <p>Sincerely,<br>
-             <b>Anexhomes Team<br>
-                 123 Main Street<br>
-                Anytown, USA 12345</b></p>
-             <p><small>Sent to: {{firstName}}</small><br>
-            <small>Sent on: {{timestamp}}</small></p>
-             <p><small>Please reply directly to this email</small></p>
+
+            <h2>AnexHomes Pre-Approval Notification</h2>
+
+            <p>Dear {{firstName}},</p>
+
+            <p>
+                We are pleased to inform you that your application has received
+                preliminary review and has been pre-approved by AnexHomes.
+            </p>
+
+            <p>
+                This pre-approval indicates that you meet our initial eligibility
+                requirements and may proceed to the next stage of the review process.
+                Please review the attached document for additional information and
+                important next steps.
+            </p>
+
+            <p>
+                Our team remains available to assist you throughout the process,
+                and we look forward to helping you achieve your housing goals.
+            </p>
+
+            <p style="text-align:center;">
+                <a href="https://anexhomes.vercel.app/" class="button">
+                    Visit AnexHomes
+                </a>
+            </p>
+
+            <div class="property-images">
+                <a href="https://anexhomes.vercel.app/">
+                    <img src="https://i.pinimg.com/736x/e3/ba/53/e3ba53fd4865d7c48af2fef97abd2596.jpg"
+                         alt="Property Listing">
+                </a>
+
+                <a href="https://anexhomes.vercel.app/">
+                    <img src="https://i.pinimg.com/736x/a2/f5/26/a2f5263dce2ae00797b4f5b81f5d6b6f.jpg"
+                         alt="Property Listing">
+                </a>
+            </div>
+
+            <p>
+                Sincerely,<br>
+                <strong>AnexHomes Team</strong>
+            </p>
+
         </div>
+
+        <div class="footer">
+
+            <p>
+                AnexHomes<br>
+                123 Main Street<br>
+                Anytown, USA 12345
+            </p>
+
+            <p>
+                Recipient: {{firstName}}<br>
+                Date Sent: {{timestamp}}
+            </p>
+
+            <p>
+                If you have any questions, please reply directly to this email.
+            </p>
+
+        </div>
+
     </div>
+</div>
+
 </body>
 </html>
