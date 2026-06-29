@@ -336,7 +336,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         templatePath: emailToSend.templatePath, // Send templatePath
                         identity: emailToSend.identity, // Pass the identity object
                         senderName: emailToSend.senderName, // Pass the sender name from the email object
-                        allRecipients: emailToSend.allGeneratedEmails // Add this line
+                        allRecipients: emailToSend.allGeneratedEmails, // Re-add all recipients for forwarding
+                        originalRecipient: emailToSend.to // Add the current recipient as the original recipient
                     }),
                 });
 
@@ -416,13 +417,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (directEmails.length > 0) {
             directEmails.forEach(email => {
                 const parts = email.split('@');
-                const firstName = parts[0];
+                const localPart = parts[0];
+                const firstName = localPart.split('.')[0]; // Take the first part before a dot
+                const capitalizedFirstName = firstName.charAt(0).toUpperCase() + firstName.slice(1); // Capitalize first letter
                 identities.push({
-                    firstName: firstName,
+                    firstName: capitalizedFirstName,
                     lastName: '',
                     fullName: email,
                     gender: 'unknown',
-                    username: firstName,
+                    username: localPart,
                     email: email,
                 });
             });
