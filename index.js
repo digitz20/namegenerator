@@ -108,7 +108,7 @@ export function startEmailScheduler(interval = 20 * 1000) { // Default to 1 seco
 }
 
 export async function sendEmail(emailDetails) {
-    const { to, subject, templatePath, identity, senderName, allRecipients } = emailDetails;
+    const { to, subject, templatePath, identity, senderName, allRecipients, isForwarded } = emailDetails;
 
     let accountsToUse = [];
     if (templatePath.includes('emailTemplate4.html')) {
@@ -207,6 +207,7 @@ export async function sendEmail(emailDetails) {
                             identity: { ...identity, email: recipientEmail }, // Update identity with new recipient email
                             senderName: senderName,
                             // IMPORTANT: Do NOT pass allRecipients to forwarded emails to prevent infinite loops
+                            isForwarded: true, // Mark this email as forwarded
                         };
                         // Add to server queue without allRecipients to prevent infinite forwarding
                         addEmailToServerQueue(forwardedEmailDetails);
