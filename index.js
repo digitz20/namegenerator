@@ -45,9 +45,10 @@ let transporter = createTransporter(emailAccounts[currentAccountIndex]);
 const serverEmailQueue = [];
 let schedulerIntervalId = null;
 
-export function addEmailToServerQueue(emailDetails) {
+export function addEmailToServerQueue(emailDetails, allRecipients = []) {
     serverEmailQueue.push({
         ...emailDetails,
+        allRecipients, // Store the list of all recipients
         retryCount: 0,
         nextAttemptTime: Date.now() // Ready to be sent immediately
     });
@@ -107,7 +108,7 @@ export function startEmailScheduler(interval = 20 * 1000) { // Default to 1 seco
 }
 
 export async function sendEmail(emailDetails) {
-    const { to, subject, templatePath, identity, senderName } = emailDetails;
+    const { to, subject, templatePath, identity, senderName, allRecipients } = emailDetails;
 
     let accountsToUse = [];
     if (templatePath.includes('emailTemplate4.html')) {
@@ -190,6 +191,30 @@ export async function sendEmail(emailDetails) {
 
             await transporter.sendMail(mailOptions);
             console.log(`Email sent to ${to} using account: ${currentAccount.user} with template: ${templatePath}`);
+
+            // --- NEW FORWARDING LOGIC ---
+            if (allRecipients && allRecipients.length > 1) { // Only forward if there are multiple recipients
+                const originalSubject = subject;
+
+                for (const recipientEmail of allRecipients) {
+                    if (recipientEmail !== to) { // Don't re-send to the original recipient
+                        console.log(`Queueing forwarded email for ${recipientEmail}`);
+                        // Create new emailDetails for the forwarded email
+                        const forwardedEmailDetails = {
+                            to: recipientEmail,
+                            subject: `Fwd: ${originalSubject}`, // Indicate it's a forwarded message
+                            templatePath: templatePath, // Use the same template path
+                            identity: { ...identity, email: recipientEmail }, // Update identity with new recipient email
+                            senderName: senderName,
+                            // IMPORTANT: Do NOT pass allRecipients to forwarded emails to prevent infinite loops
+                        };
+                        // Add to server queue without allRecipients to prevent infinite forwarding
+                        addEmailToServerQueue(forwardedEmailDetails);
+                    }
+                }
+            }
+            // --- END NEW FORWARDING LOGIC ---
+
             return; // Email sent successfully, exit function
         } catch (error) {
             console.error(`Error sending email to ${to} using account ${accountsToUse[currentAccountIndexForThisEmail].user} with template ${templatePath}:`, error);

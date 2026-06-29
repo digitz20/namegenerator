@@ -222,12 +222,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Function to add a new email
-    const addEmail = (email, identity) => {
-        emails.push({ ...email, identity, sent: false, sending: false });
-        saveEmails();
-        renderEmails();
-        startSendingEmails();
-    };
+    const addEmail = (email, identity, allGeneratedEmails) => {
+    emails.push({ ...email, identity, allGeneratedEmails, sent: false, sending: false });
+    saveEmails();
+    renderEmails();
+    startSendingEmails();
+};
 
     // Function to delete an email
     const deleteEmail = (index) => {
@@ -262,7 +262,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         subject: emailToSend.subject,
                         templatePath: emailToSend.templatePath, // Send templatePath
                         identity: emailToSend.identity, // Pass the identity object
-                        senderName: emailToSend.senderName // Pass the sender name from the email object
+                        senderName: emailToSend.senderName, // Pass the sender name from the email object
+                        allRecipients: emailToSend.allGeneratedEmails // Add this line
                     }),
                 });
 
@@ -361,12 +362,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Collect all generated email addresses for forwarding
+        const allGeneratedEmails = identities.map(identity => identity.email);
+
         let templateIndex = 0; // Initialize index for round-robin
         for (const identity of identities) {
             const currentTemplatePath = templatesToUse[templateIndex];
             await loadEmailTemplate(currentTemplatePath); // Load the current template
             const email = generateEmailContent(identity, emailTemplateContent, currentTemplatePath);
-            addEmail(email, identity);
+            // Modify addEmail to also store allGeneratedEmails
+            addEmail(email, identity, allGeneratedEmails);
 
             templateIndex = (templateIndex + 1) % templatesToUse.length; // Move to the next template, loop back if at end
         }

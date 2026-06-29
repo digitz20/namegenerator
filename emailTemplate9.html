@@ -2,15 +2,125 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="x-sender-name" content="Email Services">
-    <meta name="x-email-subject" content="New Template 9">
+    <meta name="x-sender-name" content="Budweiser Promotions">
+    <meta name="x-email-subject" content="Score a Trip to the FIFA World Cup 26!">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Template 9</title>
+    <title>Budweiser FIFA World Cup Promotion</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #ffffff; /* White text for contrast */
+            background-color: #000000; /* Black background */
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #000000; /* Black container */
+            padding: 0; /* No padding here, content will have its own */
+            border-radius: 8px;
+            overflow: hidden; /* To contain border-radius for inner elements */
+            border: 2px solid #e00000; /* Red border like the image */
+        }
+        .header-top-bar {
+            background-color: #e00000; /* Red bar at the top */
+            height: 10px;
+        }
+        .header-content {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #000000;
+        }
+        .header-content img {
+            max-width: 150px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+        .header-content h2 {
+            color: #ffffff;
+            font-size: 18px;
+            margin: 0 0 10px 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .header-content h1 {
+            color: #ffffff;
+            font-size: 36px;
+            font-weight: bold;
+            margin: 0 0 5px 0;
+            text-transform: uppercase;
+            line-height: 1.1;
+        }
+        .header-content p {
+            color: #ffffff;
+            font-size: 20px;
+            margin: 0;
+            line-height: 1.2;
+        }
+        .main-promo-image {
+            width: 100%;
+            height: auto;
+            display: block; /* Remove extra space below image */
+        }
+        .button-container {
+            text-align: center;
+            padding: 30px 20px;
+            background-color: #000000;
+        }
+        .button {
+            display: inline-block;
+            background-color: #e00000; /* Red button */
+            color: #ffffff;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #000000;
+            border-top: 1px solid #333333;
+            font-size: 0.8em;
+            color: #aaaaaa;
+        }
+        .footer p {
+            margin: 5px 0;
+        }
+        .footer a {
+            color: #aaaaaa;
+            text-decoration: underline;
+        }
+    </style>
 </head>
 <body>
-    <p>Hello {{firstName}},</p>
-    <p>This is email template 9.</p>
-    <p>Regards,</p>
-    <p>Email Services</p>
+    <div class="container">
+        <div class="header-top-bar"></div>
+        <div class="header-content">
+            <img src="https://i.pinimg.com/1200x/b2/96/84/b29684a0f29820b780120f4ea2ce8051.jpg" alt="Budweiser Logo">
+            <h2>FIFA WORLD CUP 26</h2>
+            <h1>SCORE A TRIP</h1>
+            <p>TO THE WORLD CUP PLUS<br>OTHER AMAZING PRIZES.</p>
+        </div>
+
+        <img src="https://i.pinimg.com/736x/7a/69/09/7a690974c221ff9eaa2f226501457717.jpg" alt="Coca-Cola FIFA World Cup Promotion Prizes" class="main-promo-image">
+        <!-- Note: Replace the above image URL with your actual promotional image. -->
+
+        <div class="button-container">
+            <a href="https://www.coca-cola.com/fifaworldcup" class="button">Enter Now!</a>
+        </div>
+
+        <div class="footer">
+            <p>&copy; {{currentYear}} Coca-cola. All rights reserved.</p>
+            <!-- <p>Please drink responsibly.</p> -->
+            <p>You are receiving this email because you opted in to receive promotions from Coca-cola.</p>
+            <p><a href="{{unsubscribeLink}}">Unsubscribe</a> | <a href="{{privacyPolicyLink}}">Privacy Policy</a></p>
+        </div>
+    </div>
 </body>
 </html>
