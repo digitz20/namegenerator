@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const deleteAllBtn = document.getElementById('deleteAll');
     const emailListDiv = document.getElementById('emailList');
     const noEmailsMessage = document.getElementById('noEmailsMessage');
+    const templatePreviewArea = document.getElementById('templatePreviewArea');
 
     let emails = [];
     const SEND_INTERVAL = 1 * 1000; // 1 second in milliseconds
@@ -54,6 +55,78 @@ document.addEventListener('DOMContentLoaded', () => {
             templateCheckboxesDiv.appendChild(label);
             templateCheckboxesDiv.appendChild(document.createElement('br'));
         });
+
+        // Add event listeners to checkboxes for preview
+        document.querySelectorAll('.template-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', renderTemplatePreviews);
+        });
+    };
+
+    // Function to load email template for preview (returns raw HTML)
+    const loadTemplateForPreview = async (templatePath) => {
+        try {
+            const response = await fetch(templatePath);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status} ${response.statusText}`);
+            }
+            return await response.text();
+        } catch (error) {
+            console.error(`Failed to load template for preview from ${templatePath}:`, error);
+            return `<p style="color: red;">Error loading preview for ${templatePath}.</p>`;
+        }
+    };
+
+    // Function to render template previews
+    const renderTemplatePreviews = async () => {
+        templatePreviewArea.innerHTML = '<h2>Template Preview</h2>'; // Clear previous previews
+
+        const emailTemplateSelector = document.getElementById('emailTemplateSelector');
+        const selectedDropdownValue = emailTemplateSelector.value;
+        const checkedCheckboxes = Array.from(document.querySelectorAll('.template-checkbox:checked')).map(checkbox => checkbox.value);
+
+        let templatesToPreview = [];
+
+        if (selectedDropdownValue !== 'random') {
+            templatesToPreview.push(selectedDropdownValue);
+        }
+        templatesToPreview = [...new Set([...templatesToPreview, ...checkedCheckboxes])]; // Combine and ensure uniqueness
+
+        if (templatesToPreview.length === 0) {
+            templatePreviewArea.innerHTML += '<p>Select a template to see its preview here.</p>';
+            return;
+        }
+
+        for (const templatePath of templatesToPreview) {
+            const templateName = templatePath.replace('.html', '');
+            const previewContainer = document.createElement('div');
+            previewContainer.classList.add('template-preview-item');
+            previewContainer.style.marginBottom = '15px';
+            previewContainer.style.border = '1px solid #eee';
+            previewContainer.style.padding = '10px';
+            previewContainer.style.backgroundColor = '#fff';
+
+            const title = document.createElement('h3');
+            title.textContent = `Preview: ${templateName}`;
+            title.style.marginTop = '0';
+            previewContainer.appendChild(title);
+
+            const iframe = document.createElement('iframe');
+            iframe.style.width = '100%';
+            iframe.style.height = '300px'; // Adjust height as needed
+            iframe.style.border = '1px solid #ddd';
+            iframe.style.backgroundColor = '#fff';
+            iframe.sandbox = 'allow-same-origin'; // Restrict iframe capabilities for security
+            previewContainer.appendChild(iframe);
+
+            templatePreviewArea.appendChild(previewContainer);
+
+            const content = await loadTemplateForPreview(templatePath);
+            if (iframe.contentDocument) {
+                iframe.contentDocument.open();
+                iframe.contentDocument.write(content);
+                iframe.contentDocument.close();
+            }
+        }
     };
 
     // --- Utility Functions ---
@@ -408,7 +481,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load email template and then emails when the page loads
     populateTemplateSelectors();
+    // Add event listener for the dropdown selector
+    document.getElementById('emailTemplateSelector').addEventListener('change', renderTemplatePreviews);
+    
     loadEmailTemplate('emailTemplate.html').then(() => {
         loadEmails();
+        renderTemplatePreviews(); // Initial render of template previews
     });
 });
