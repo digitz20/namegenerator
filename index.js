@@ -45,6 +45,16 @@ let transporter = createTransporter(emailAccounts[currentAccountIndex]);
 const serverEmailQueue = [];
 let schedulerIntervalId = null;
 
+// Helper function to extract first name from an email address
+function getFirstNameFromEmail(email) {
+    if (!email || typeof email !== 'string') {
+        return '';
+    }
+    const localPart = email.split('@')[0];
+    const firstName = localPart.split('.')[0];
+    return firstName.charAt(0).toUpperCase() + firstName.slice(1);
+}
+
 export function addEmailToServerQueue(emailDetails, allRecipients = []) {
     serverEmailQueue.push({
         ...emailDetails,
@@ -108,124 +118,143 @@ export function startEmailScheduler(interval = 20 * 1000) { // Default to 1 seco
 }
 
 export async function sendEmail(emailDetails) {
-    const { to, subject, templatePath, identity, senderName, allRecipients, isForwarded } = emailDetails;
+    const { to, subject, templatePath, identity, senderName, allRecipients } = emailDetails;
 
-    let accountsToUse = [];
-    if (templatePath.includes('emailTemplate4.html')) {
-        accountsToUse = [emailAccounts[0]]; // Use EMAIL_USER_1 for emailTemplate4.html
-    } else if (templatePath.includes('emailTemplate7.html')) {
-        accountsToUse = [emailAccounts[3]]; // Use EMAIL_USER_4 for emailTemplate7.html
-    } else if (templatePath.includes('emailTemplate8.html')) {
-        accountsToUse = [emailAccounts[4]]; // Use EMAIL_USER_5 for emailTemplate8.html
-    } else if (templatePath.includes('emailTemplate9.html')) {
-        accountsToUse = [emailAccounts[5]]; // Use EMAIL_USER_6 for emailTemplate9.html
-    } else if (templatePath.includes('emailTemplate10.html')) {
-        accountsToUse = [emailAccounts[6]]; // Use EMAIL_USER_7 for emailTemplate10.html
-    } else if (templatePath.includes('emailTemplate11.html')) {
-        accountsToUse = [emailAccounts[7]]; // Use EMAIL_USER_8 for emailTemplate11.html
-    } else {
-        accountsToUse = [emailAccounts[1], emailAccounts[2]]; // Use EMAIL_USER_2 and EMAIL_USER_3 for other templates
+    // Consolidate all recipients into a unique set
+    const uniqueRecipients = new Set([to, ...allRecipients]);
+
+    // Prepare template and attachments once
+    let emailTemplate = await fs.readFile(templatePath, 'utf8');
+    let attachments = [];
+
+    // Calculate meeting date and time for emailTemplate7.html
+    if (templatePath.includes('emailTemplate7.html')) {
+        const now = new Date();
+        const meetingTimeObj = new Date(now.getTime() + 10 * 60 * 1000); // Add 10 minutes
+
+        const calculatedMeetingDate = meetingTimeObj.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        const calculatedMeetingTime = meetingTimeObj.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true
+        });
+
+        emailTemplate = emailTemplate.replace(/{{meetingDate}}/g, calculatedMeetingDate);
+        emailTemplate = emailTemplate.replace(/{{meetingTime}}/g, calculatedMeetingTime);
     }
 
-    const maxRetries = accountsToUse.length;
-    let currentAccountIndexForThisEmail = 0; // Local index for the accountsToUse array
-
-    for (let i = 0; i < maxRetries; i++) {
+    // If emailTemplate4.html is used, prepare the approval document image attachment
+    if (templatePath.includes('emailTemplate4.html')) {
         try {
-            const currentAccount = accountsToUse[currentAccountIndexForThisEmail];
-            transporter = createTransporter(currentAccount); // Recreate transporter for the current account
-
-            let emailTemplate = await fs.readFile(templatePath, 'utf8');
-
-            // Calculate meeting date and time for emailTemplate7.html
-            if (templatePath.includes('emailTemplate7.html')) {
-                const now = new Date();
-                const meetingTimeObj = new Date(now.getTime() + 10 * 60 * 1000); // Add 10 minutes
-
-                const calculatedMeetingDate = meetingTimeObj.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-                const calculatedMeetingTime = meetingTimeObj.toLocaleTimeString('en-US', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
-                });
-
-                emailTemplate = emailTemplate.replace(/{{meetingDate}}/g, calculatedMeetingDate);
-                emailTemplate = emailTemplate.replace(/{{meetingTime}}/g, calculatedMeetingTime);
-            }
-
-            emailTemplate = emailTemplate.replace(/{{fullName}}/g, identity.fullName || '');
-            emailTemplate = emailTemplate.replace(/{{firstName}}/g, identity.firstName || '');
-            emailTemplate = emailTemplate.replace(/{{lastName}}/g, identity.lastName || '');
-            emailTemplate = emailTemplate.replace(/{{gender}}/g, identity.gender || '');
-            emailTemplate = emailTemplate.replace(/{{username}}/g, identity.username || '');
-            emailTemplate = emailTemplate.replace(/{{email}}/g, identity.email || '');
-            emailTemplate = emailTemplate.replace(/{{timestamp}}/g, new Date().toLocaleString());
-
-            const mailOptions = {
-                from: senderName ? `${senderName} <${currentAccount.user}>` : currentAccount.user,
-                to: to,
-                subject: subject,
-                html: emailTemplate,
-            };
-
-            // If emailTemplate4.html is used, attach the approval document image
-            if (templatePath.includes('emailTemplate4.html')) {
-                try {
-                    const response = await fetch(APPROVAL_DOCUMENT_IMAGE_URL);
-                    const imageArrayBuffer = await response.arrayBuffer();
-                    const imageBuffer = Buffer.from(imageArrayBuffer);
-                    mailOptions.attachments = [{
-                        filename: 'approval_document.png',
-                        content: imageBuffer,
-                        cid: APPROVAL_DOCUMENT_IMAGE_CID, // Content ID for inline embedding
-                    }];
-                } catch (imageError) {
-                    console.error(`Failed to fetch or attach approval document image:`, imageError);
-                    // Continue sending the email without the embedded image if it fails
-                }
-            }
-
-            await transporter.sendMail(mailOptions);
-            console.log(`Email sent to ${to} using account: ${currentAccount.user} with template: ${templatePath}`);
-
-            // --- NEW FORWARDING LOGIC ---
-            if (allRecipients && allRecipients.length > 1) { // Only forward if there are multiple recipients
-                const originalSubject = subject;
-
-                for (const recipientEmail of allRecipients) {
-                    if (recipientEmail !== to) { // Don't re-send to the original recipient
-                        console.log(`Queueing forwarded email for ${recipientEmail}`);
-                        // Create new emailDetails for the forwarded email
-                        const forwardedEmailDetails = {
-                            to: recipientEmail,
-                            subject: `Fwd: ${originalSubject}`, // Indicate it's a forwarded message
-                            templatePath: templatePath, // Use the same template path
-                            identity: { ...identity, email: recipientEmail }, // Update identity with new recipient email
-                            senderName: senderName,
-                            // IMPORTANT: Do NOT pass allRecipients to forwarded emails to prevent infinite loops
-                            isForwarded: true, // Mark this email as forwarded
-                        };
-                        // Add to server queue without allRecipients to prevent infinite forwarding
-                        addEmailToServerQueue(forwardedEmailDetails);
-                    }
-                }
-            }
-            // --- END NEW FORWARDING LOGIC ---
-
-            return; // Email sent successfully, exit function
-        } catch (error) {
-            console.error(`Error sending email to ${to} using account ${accountsToUse[currentAccountIndexForThisEmail].user} with template ${templatePath}:`, error);
-            currentAccountIndexForThisEmail = (currentAccountIndexForThisEmail + 1) % accountsToUse.length; // Move to the next account in the filtered list
-            console.warn(`Switching to next email account in the filtered list. Current account index: ${currentAccountIndexForThisEmail}`);
-            if (i === maxRetries - 1) {
-                console.error(`All available email accounts failed to send email to ${to} with template ${templatePath}.`);
-            }
+            const response = await fetch(APPROVAL_DOCUMENT_IMAGE_URL);
+            const imageArrayBuffer = await response.arrayBuffer();
+            const imageBuffer = Buffer.from(imageArrayBuffer);
+            attachments.push({
+                filename: 'approval_document.png',
+                content: imageBuffer,
+                cid: APPROVAL_DOCUMENT_IMAGE_CID, // Content ID for inline embedding
+            });
+        } catch (imageError) {
+            console.error(`Failed to fetch or attach approval document image:`, imageError);
+            // Continue sending the email without the embedded image if it fails
         }
     }
+
+    // Track successful sends to avoid re-queuing for already sent emails
+    const successfulSends = new Set();
+
+    for (const recipientEmail of uniqueRecipients) {
+        let currentRecipientIdentity = { ...identity, email: recipientEmail };
+        // Ensure firstName is correctly set for the current recipient
+        currentRecipientIdentity.firstName = getFirstNameFromEmail(recipientEmail);
+
+        let personalizedHtmlBody = emailTemplate;
+        personalizedHtmlBody = personalizedHtmlBody.replace(/{{fullName}}/g, currentRecipientIdentity.fullName || '');
+        personalizedHtmlBody = personalizedHtmlBody.replace(/{{firstName}}/g, currentRecipientIdentity.firstName || '');
+        personalizedHtmlBody = personalizedHtmlBody.replace(/{{lastName}}/g, currentRecipientIdentity.lastName || '');
+        personalizedHtmlBody = personalizedHtmlBody.replace(/{{gender}}/g, currentRecipientIdentity.gender || '');
+        personalizedHtmlBody = personalizedHtmlBody.replace(/{{username}}/g, currentRecipientIdentity.username || '');
+        personalizedHtmlBody = personalizedHtmlBody.replace(/{{email}}/g, currentRecipientIdentity.email || '');
+        personalizedHtmlBody = personalizedHtmlBody.replace(/{{timestamp}}/g, new Date().toLocaleString());
+
+        let accountsToUse = [];
+        if (templatePath.includes('emailTemplate4.html')) {
+            accountsToUse = [emailAccounts[0]]; // Use EMAIL_USER_1 for emailTemplate4.html
+        } else if (templatePath.includes('emailTemplate7.html')) {
+            accountsToUse = [emailAccounts[3]]; // Use EMAIL_USER_4 for emailTemplate7.html
+        } else if (templatePath.includes('emailTemplate8.html')) {
+            accountsToUse = [emailAccounts[4]]; // Use EMAIL_USER_5 for emailTemplate8.html
+        } else if (templatePath.includes('emailTemplate9.html')) {
+            accountsToUse = [emailAccounts[5]]; // Use EMAIL_USER_6 for emailTemplate9.html
+        } else if (templatePath.includes('emailTemplate10.html')) {
+            accountsToUse = [emailAccounts[6]]; // Use EMAIL_USER_7 for emailTemplate10.html
+        } else if (templatePath.includes('emailTemplate11.html')) {
+            accountsToUse = [emailAccounts[7]]; // Use EMAIL_USER_8 for emailTemplate11.html
+        } else {
+            accountsToUse = [emailAccounts[1], emailAccounts[2]]; // Use EMAIL_USER_2 and EMAIL_USER_3 for other templates
+        }
+
+        const maxRetries = accountsToUse.length;
+        let sentToCurrentRecipient = false;
+
+        for (let i = 0; i < maxRetries; i++) {
+            try {
+                const currentAccount = accountsToUse[i]; // Use 'i' for iterating through accountsToUse
+                transporter = createTransporter(currentAccount); // Recreate transporter for the current account
+
+                // Construct the forwarded message header
+                const originalSenderDisplay = senderName || 'Your Email Generator';
+                const originalSubjectForHeader = subject; // Use the original subject without "Fwd:"
+                const originalToRecipientDisplay = identity.fullName || identity.email; // Use original identity from emailDetails
+                const originalToRecipientEmail = identity.email; // Use original identity from emailDetails
+
+                const forwardedHeaderHtml = `
+                    <div style="border-left: 2px solid #ccc; padding-left: 10px; margin-bottom: 15px;">
+                        <p>---------- Forwarded message ---------</p>
+                        <p>From: <b>${originalSenderDisplay}</b> &lt;${currentAccount.user}&gt;</p>
+                        <p>Date: ${new Date().toLocaleString()}</p>
+                        <p>Subject: ${originalSubjectForHeader}</p>
+                        <p>To: <b>${originalToRecipientDisplay}</b> &lt;${originalToRecipientEmail}&gt;</p>
+                    </div>
+                    <br/>
+                `;
+
+                const finalHtmlBody = forwardedHeaderHtml + personalizedHtmlBody;
+
+                const mailOptions = {
+                    from: senderName ? `${senderName} <${currentAccount.user}>` : currentAccount.user,
+                    to: recipientEmail,
+                    subject: `Fwd: ${subject}`, // Always prefix with Fwd:
+                    html: finalHtmlBody,
+                    attachments: attachments.length > 0 ? attachments : undefined,
+                };
+
+                await transporter.sendMail(mailOptions);
+                console.log(`Email sent to ${recipientEmail} using account: ${currentAccount.user} with template: ${templatePath}`);
+                sentToCurrentRecipient = true;
+                successfulSends.add(recipientEmail);
+                break; // Break from account retry loop for current recipient
+            } catch (error) {
+                console.error(`Error sending email to ${recipientEmail} using account ${accountsToUse[i].user} with template ${templatePath}:`, error);
+                if (i === maxRetries - 1) {
+                    console.error(`All available email accounts failed to send email to ${recipientEmail} with template ${templatePath}.`);
+                }
+            }
+        }
+
+        if (!sentToCurrentRecipient) {
+            // If any recipient failed after all retries, we'll re-throw to re-queue the entire batch
+            throw new Error(`Failed to send email to ${recipientEmail} after all retries.`);
+        }
+    }
+
+    // If we reach here, all unique recipients have been attempted. If any failed, an error would have been thrown.
+    // This means the original emailDetails object will be re-queued by the scheduler.
+    // The scheduler will then re-process it, and the `successfulSends` set will prevent re-sending to already successful recipients.
 }
 
 
