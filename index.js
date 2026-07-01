@@ -162,7 +162,10 @@ export async function sendEmail(emailDetails) {
 
     // The identity object passed here is already for the specific recipient 'to'
     let currentRecipientIdentity = { ...identity, email: to };
-    currentRecipientIdentity.firstName = getFirstNameFromEmail(to); // Ensure firstName is correct for 'to'
+    currentRecipientIdentity.firstName = getFirstNameFromEmail(to);
+    // Ensure fullName is also derived if not already set or if it's just the email
+    currentRecipientIdentity.fullName = identity.fullName && identity.fullName !== identity.email ? identity.fullName : currentRecipientIdentity.firstName || to;
+    currentRecipientIdentity.lastName = identity.lastName || '';
 
     let personalizedHtmlBody = emailTemplate;
     personalizedHtmlBody = personalizedHtmlBody.replace(/{{fullName}}/g, currentRecipientIdentity.fullName || '');
