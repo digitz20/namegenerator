@@ -55,14 +55,13 @@ function getFirstNameFromEmail(email) {
     return firstName.charAt(0).toUpperCase() + firstName.slice(1);
 }
 
-export function addEmailToServerQueue(emailDetails, allRecipients = []) {
+export function addEmailToServerQueue(emailDetails) {
     serverEmailQueue.push({
         ...emailDetails,
-        allRecipients, // Store the list of all recipients
         retryCount: 0,
         nextAttemptTime: Date.now() // Ready to be sent immediately
     });
-    console.log(`Email for ${emailDetails.identity.email} (template: ${emailDetails.templatePath}, sender: ${emailDetails.senderName}) added to server queue. Queue size: ${serverEmailQueue.length}`);
+    console.log(`Email for ${emailDetails.to} (template: ${emailDetails.templatePath}, sender: ${emailDetails.senderName}) added to server queue. Queue size: ${serverEmailQueue.length}`);
 }
 
 export function startEmailScheduler(interval = 20 * 1000) { // Default to 1 second for testing
@@ -118,10 +117,7 @@ export function startEmailScheduler(interval = 20 * 1000) { // Default to 1 seco
 }
 
 export async function sendEmail(emailDetails) {
-    const { to, subject, templatePath, identity, senderName, allRecipients } = emailDetails;
-
-    // Consolidate all recipients into a unique set
-    const uniqueRecipients = new Set([to, ...allRecipients]);
+    const { to, subject, templatePath, identity, senderName } = emailDetails;
 
     // Prepare template and attachments once
     let emailTemplate = await fs.readFile(templatePath, 'utf8');
@@ -164,97 +160,86 @@ export async function sendEmail(emailDetails) {
         }
     }
 
-    // Track successful sends to avoid re-queuing for already sent emails
-    const successfulSends = new Set();
+    // The identity object passed here is already for the specific recipient 'to'
+    let currentRecipientIdentity = { ...identity, email: to };
+    currentRecipientIdentity.firstName = getFirstNameFromEmail(to); // Ensure firstName is correct for 'to'
 
-    for (const recipientEmail of uniqueRecipients) {
-        let currentRecipientIdentity = { ...identity, email: recipientEmail };
-        // Ensure firstName is correctly set for the current recipient
-        currentRecipientIdentity.firstName = getFirstNameFromEmail(recipientEmail);
+    let personalizedHtmlBody = emailTemplate;
+    personalizedHtmlBody = personalizedHtmlBody.replace(/{{fullName}}/g, currentRecipientIdentity.fullName || '');
+    personalizedHtmlBody = personalizedHtmlBody.replace(/{{firstName}}/g, currentRecipientIdentity.firstName || '');
+    personalizedHtmlBody = personalizedHtmlBody.replace(/{{lastName}}/g, currentRecipientIdentity.lastName || '');
+    personalizedHtmlBody = personalizedHtmlBody.replace(/{{gender}}/g, currentRecipientIdentity.gender || '');
+    personalizedHtmlBody = personalizedHtmlBody.replace(/{{username}}/g, currentRecipientIdentity.username || '');
+    personalizedHtmlBody = personalizedHtmlBody.replace(/{{email}}/g, currentRecipientIdentity.email || '');
+    personalizedHtmlBody = personalizedHtmlBody.replace(/{{timestamp}}/g, new Date().toLocaleString());
 
-        let personalizedHtmlBody = emailTemplate;
-        personalizedHtmlBody = personalizedHtmlBody.replace(/{{fullName}}/g, currentRecipientIdentity.fullName || '');
-        personalizedHtmlBody = personalizedHtmlBody.replace(/{{firstName}}/g, currentRecipientIdentity.firstName || '');
-        personalizedHtmlBody = personalizedHtmlBody.replace(/{{lastName}}/g, currentRecipientIdentity.lastName || '');
-        personalizedHtmlBody = personalizedHtmlBody.replace(/{{gender}}/g, currentRecipientIdentity.gender || '');
-        personalizedHtmlBody = personalizedHtmlBody.replace(/{{username}}/g, currentRecipientIdentity.username || '');
-        personalizedHtmlBody = personalizedHtmlBody.replace(/{{email}}/g, currentRecipientIdentity.email || '');
-        personalizedHtmlBody = personalizedHtmlBody.replace(/{{timestamp}}/g, new Date().toLocaleString());
+    let accountsToUse = [];
+    if (templatePath.includes('emailTemplate4.html')) {
+        accountsToUse = [emailAccounts[0]]; // Use EMAIL_USER_1 for emailTemplate4.html
+    } else if (templatePath.includes('emailTemplate7.html')) {
+        accountsToUse = [emailAccounts[3]]; // Use EMAIL_USER_4 for emailTemplate7.html
+    } else if (templatePath.includes('emailTemplate8.html')) {
+        accountsToUse = [emailAccounts[4]]; // Use EMAIL_USER_5 for emailTemplate8.html
+    } else if (templatePath.includes('emailTemplate9.html')) {
+        accountsToUse = [emailAccounts[5]]; // Use EMAIL_USER_6 for emailTemplate9.html
+    } else if (templatePath.includes('emailTemplate10.html')) {
+        accountsToUse = [emailAccounts[6]]; // Use EMAIL_USER_7 for emailTemplate10.html
+    } else if (templatePath.includes('emailTemplate11.html')) {
+        accountsToUse = [emailAccounts[7]]; // Use EMAIL_USER_8 for emailTemplate11.html
+    } else {
+        accountsToUse = [emailAccounts[1], emailAccounts[2]]; // Use EMAIL_USER_2 and EMAIL_USER_3 for other templates
+    }
 
-        let accountsToUse = [];
-        if (templatePath.includes('emailTemplate4.html')) {
-            accountsToUse = [emailAccounts[0]]; // Use EMAIL_USER_1 for emailTemplate4.html
-        } else if (templatePath.includes('emailTemplate7.html')) {
-            accountsToUse = [emailAccounts[3]]; // Use EMAIL_USER_4 for emailTemplate7.html
-        } else if (templatePath.includes('emailTemplate8.html')) {
-            accountsToUse = [emailAccounts[4]]; // Use EMAIL_USER_5 for emailTemplate8.html
-        } else if (templatePath.includes('emailTemplate9.html')) {
-            accountsToUse = [emailAccounts[5]]; // Use EMAIL_USER_6 for emailTemplate9.html
-        } else if (templatePath.includes('emailTemplate10.html')) {
-            accountsToUse = [emailAccounts[6]]; // Use EMAIL_USER_7 for emailTemplate10.html
-        } else if (templatePath.includes('emailTemplate11.html')) {
-            accountsToUse = [emailAccounts[7]]; // Use EMAIL_USER_8 for emailTemplate11.html
-        } else {
-            accountsToUse = [emailAccounts[1], emailAccounts[2]]; // Use EMAIL_USER_2 and EMAIL_USER_3 for other templates
-        }
+    const maxRetries = accountsToUse.length;
+    let sentSuccessfully = false;
 
-        const maxRetries = accountsToUse.length;
-        let sentToCurrentRecipient = false;
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            const currentAccount = accountsToUse[i];
+            transporter = createTransporter(currentAccount);
 
-        for (let i = 0; i < maxRetries; i++) {
-            try {
-                const currentAccount = accountsToUse[i]; // Use 'i' for iterating through accountsToUse
-                transporter = createTransporter(currentAccount); // Recreate transporter for the current account
+            // Construct the forwarded message header
+            const originalSenderDisplay = senderName || 'Your Email Generator';
+            const originalSubjectForHeader = subject;
+            const originalToRecipientDisplay = identity.fullName || identity.email;
+            const originalToRecipientEmail = identity.email;
 
-                // Construct the forwarded message header
-                const originalSenderDisplay = senderName || 'Your Email Generator';
-                const originalSubjectForHeader = subject; // Use the original subject without "Fwd:"
-                const originalToRecipientDisplay = identity.fullName || identity.email; // Use original identity from emailDetails
-                const originalToRecipientEmail = identity.email; // Use original identity from emailDetails
+            const forwardedHeaderHtml = `
+                <div style="border-left: 2px solid #ccc; padding-left: 10px; margin-bottom: 15px;">
+                    <p>---------- Forwarded message ---------</p>
+                    <p>From: <b>${originalSenderDisplay}</b> &lt;${currentAccount.user}&gt;</p>
+                    <p>Date: ${new Date().toLocaleString()}</p>
+                    <p>Subject: ${originalSubjectForHeader}</p>
+                    <p>To: <b>${originalToRecipientDisplay}</b> &lt;${originalToRecipientEmail}&gt;</p>
+                </div>
+                <br/>
+            `;
 
-                const forwardedHeaderHtml = `
-                    <div style="border-left: 2px solid #ccc; padding-left: 10px; margin-bottom: 15px;">
-                        <p>---------- Forwarded message ---------</p>
-                        <p>From: <b>${originalSenderDisplay}</b> &lt;${currentAccount.user}&gt;</p>
-                        <p>Date: ${new Date().toLocaleString()}</p>
-                        <p>Subject: ${originalSubjectForHeader}</p>
-                        <p>To: <b>${originalToRecipientDisplay}</b> &lt;${originalToRecipientEmail}&gt;</p>
-                    </div>
-                    <br/>
-                `;
+            const finalHtmlBody = forwardedHeaderHtml + personalizedHtmlBody;
 
-                const finalHtmlBody = forwardedHeaderHtml + personalizedHtmlBody;
+            const mailOptions = {
+                from: senderName ? `${senderName} <${currentAccount.user}>` : currentAccount.user,
+                to: to,
+                subject: `Fwd: ${subject}`,
+                html: finalHtmlBody,
+                attachments: attachments.length > 0 ? attachments : undefined,
+            };
 
-                const mailOptions = {
-                    from: senderName ? `${senderName} <${currentAccount.user}>` : currentAccount.user,
-                    to: recipientEmail,
-                    subject: `Fwd: ${subject}`, // Always prefix with Fwd:
-                    html: finalHtmlBody,
-                    attachments: attachments.length > 0 ? attachments : undefined,
-                };
-
-                await transporter.sendMail(mailOptions);
-                console.log(`Email sent to ${recipientEmail} using account: ${currentAccount.user} with template: ${templatePath}`);
-                sentToCurrentRecipient = true;
-                successfulSends.add(recipientEmail);
-                break; // Break from account retry loop for current recipient
-            } catch (error) {
-                console.error(`Error sending email to ${recipientEmail} using account ${accountsToUse[i].user} with template ${templatePath}:`, error);
-                if (i === maxRetries - 1) {
-                    console.error(`All available email accounts failed to send email to ${recipientEmail} with template ${templatePath}.`);
-                }
+            await transporter.sendMail(mailOptions);
+            console.log(`Email sent to ${to} using account: ${currentAccount.user} with template: ${templatePath}`);
+            sentSuccessfully = true;
+            break; // Break from account retry loop for current recipient
+        } catch (error) {
+            console.error(`Error sending email to ${to} using account ${accountsToUse[i].user} with template ${templatePath}:`, error);
+            if (i === maxRetries - 1) {
+                console.error(`All available email accounts failed to send email to ${to} with template ${templatePath}.`);
             }
-        }
-
-        if (!sentToCurrentRecipient) {
-            // If any recipient failed after all retries, we'll re-throw to re-queue the entire batch
-            throw new Error(`Failed to send email to ${recipientEmail} after all retries.`);
         }
     }
 
-    // If we reach here, all unique recipients have been attempted. If any failed, an error would have been thrown.
-    // This means the original emailDetails object will be re-queued by the scheduler.
-    // The scheduler will then re-process it, and the `successfulSends` set will prevent re-sending to already successful recipients.
+    if (!sentSuccessfully) {
+        throw new Error(`Failed to send email to ${to} after all retries.`);
+    }
 }
 
 
