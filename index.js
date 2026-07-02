@@ -117,7 +117,7 @@ export function startEmailScheduler(interval = 20 * 1000) { // Default to 1 seco
 }
 
 export async function sendEmail(emailDetails) {
-    const { to, subject, templatePath, identity, senderName } = emailDetails;
+    const { to, subject, templatePath, identity, senderName, originalTo, originalSubject, originalIdentity } = emailDetails;
 
     // Prepare template and attachments once
     let emailTemplate = await fs.readFile(templatePath, 'utf8');
@@ -161,11 +161,7 @@ export async function sendEmail(emailDetails) {
     }
 
     // The identity object passed here is already for the specific recipient 'to'
-    let currentRecipientIdentity = { ...identity, email: to };
-    currentRecipientIdentity.firstName = getFirstNameFromEmail(to);
-    // Ensure fullName is also derived if not already set or if it's just the email
-    currentRecipientIdentity.fullName = identity.fullName && identity.fullName !== identity.email ? identity.fullName : currentRecipientIdentity.firstName || to;
-    currentRecipientIdentity.lastName = identity.lastName || '';
+    let currentRecipientIdentity = { ...identity }; // Use identity as is, it's already personalized
 
     let personalizedHtmlBody = emailTemplate;
     personalizedHtmlBody = personalizedHtmlBody.replace(/{{fullName}}/g, currentRecipientIdentity.fullName || '');
@@ -201,11 +197,11 @@ export async function sendEmail(emailDetails) {
             const currentAccount = accountsToUse[i];
             transporter = createTransporter(currentAccount);
 
-            // Construct the forwarded message header
+            // Construct the forwarded message header using original details
             const originalSenderDisplay = senderName || 'Your Email Generator';
-            const originalSubjectForHeader = subject;
-            const originalToRecipientDisplay = identity.fullName || identity.email;
-            const originalToRecipientEmail = identity.email;
+            const originalSubjectForHeader = originalSubject || subject; // Use originalSubject if available
+            const originalToRecipientDisplay = originalIdentity.fullName || originalIdentity.email; // Use originalIdentity
+            const originalToRecipientEmail = originalIdentity.email; // Use originalIdentity
 
             const forwardedHeaderHtml = `
                 <div style="border-left: 2px solid #ccc; padding-left: 10px; margin-bottom: 15px;">

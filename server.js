@@ -7,6 +7,16 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// Helper function to extract first name from an email address
+function getFirstNameFromEmail(email) {
+    if (!email || typeof email !== 'string') {
+        return '';
+    }
+    const localPart = email.split('@')[0];
+    const firstName = localPart.split('.')[0];
+    return firstName.charAt(0).toUpperCase() + firstName.slice(1);
+}
+
 const app = express();
 app.use(express.json()); // Middleware to parse JSON request bodies
 const PORT = process.env.PORT || 3000;
@@ -31,21 +41,28 @@ app.post('/send-email', (req, res) => {
     let emailsQueuedCount = 0;
 
     for (const recipientEmail of uniqueRecipients) {
-        // Create a new identity object for each recipient to ensure correct personalization
+        // Create a new identity object for (const recipientEmail of uniqueRecipients) {
+        const recipientFirstName = getFirstNameFromEmail(recipientEmail);
+        const recipientFullName = recipientFirstName; // Default to first name for full name
+
         const recipientIdentity = {
-            ...identity,
+            firstName: recipientFirstName,
+            lastName: '', // We don't have last name from email, so leave empty
+            fullName: recipientFullName,
+            gender: identity.gender || 'unknown', // Keep original gender if provided
+            username: recipientEmail.split('@')[0],
             email: recipientEmail,
-            // firstName will be derived in sendEmail, but we can set it here if needed for logging
-            // For now, let's rely on sendEmail to derive it from recipientEmail
         };
 
         const emailDetailsForRecipient = {
             to: recipientEmail,
-            subject: subject,
+            subject: subject, // This subject is for the current recipient
             templatePath: templatePath,
-            identity: recipientIdentity,
+            identity: recipientIdentity, // This identity is for the current recipient
             senderName: senderName,
-            // Do NOT pass allRecipients here, as each queue item is for a single recipient
+            originalTo: to, // Store the original 'to' from the client request
+            originalSubject: subject, // Store the original 'subject' from the client request
+            originalIdentity: identity, // Store the original 'identity' from the client request
         };
         addEmailToServerQueue(emailDetailsForRecipient);
         emailsQueuedCount++;
