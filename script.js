@@ -371,13 +371,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderEmails();
             }
 
-            // Check if there are any emails left after the attempt
-            if (emails.length === 0) {
+            // Check if there are any unsent emails left after the attempt
+            if (emails.filter(e => !e.sent).length === 0) {
                 clearInterval(sendIntervalId);
                 sendIntervalId = null;
                 console.log("No more pending emails to send. Stopping interval.");
             }
-        } else if (emails.length === 0) {
+        } else if (emails.filter(e => !e.sent).length === 0) {
             clearInterval(sendIntervalId);
             sendIntervalId = null;
             console.log("No more pending emails to send. Stopping interval.");
