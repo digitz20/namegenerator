@@ -139,27 +139,31 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            emailTemplateContent = await response.text();
+            const content = await response.text();
 
             const parser = new DOMParser();
-            const doc = parser.parseFromString(emailTemplateContent, 'text/html');
+            const doc = parser.parseFromString(content, 'text/html');
 
             const senderMeta = doc.querySelector('meta[name="x-sender-name"]');
             const subjectMeta = doc.querySelector('meta[name="x-email-subject"]');
 
-            currentSenderName = senderMeta ? senderMeta.getAttribute('content') : 'Board Services';
-            currentEmailSubject = subjectMeta ? subjectMeta.getAttribute('content') : 'Hello, {{firstName}}';
+            const senderName = senderMeta ? senderMeta.getAttribute('content') : 'Board Services';
+            const emailSubject = subjectMeta ? subjectMeta.getAttribute('content') : 'Hello, {{firstName}}';
 
-            console.log(`Email template from ${templatePath} loaded successfully. Sender: ${currentSenderName}, Subject: ${currentEmailSubject}`);
+            console.log(`Email template from ${templatePath} loaded successfully. Sender: ${senderName}, Subject: ${emailSubject}`);
+            return { templateContent: content, senderName, emailSubject };
         } catch (error) {
             console.error(`Failed to load email template from ${templatePath}:`, error);
             // Fallback to a default template or alert the user
-            emailTemplateContent = `
-                <p>Hello {{firstName}},</p>
-                <p>This is a generated email to demonstrate the functionality.</p>
-                <p>Best regards,</p>
-                <p>Your Email Generator</p>
-            `;
+            return {
+                templateContent: `
+                    <p>Hello {{firstName}},</p>
+                    <p>Best regards,</p>
+                    <p>Services</p>
+                `,
+                senderName: 'Services',
+                emailSubject: 'Hello, {{firstName}}'
+            };
         }
     };
 
@@ -273,7 +277,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Function to generate email content using the loaded template
-    const generateEmailContent = (identity, templateContent, templatePath) => {
+    const generateEmailContent = (identity, templateContent, templatePath, senderName, emailSubject) => {
         let htmlBody = templateContent;
 
         // Replace all placeholders
@@ -285,14 +289,14 @@ document.addEventListener('DOMContentLoaded', () => {
         htmlBody = htmlBody.replace(/{{email}}/g, identity.email || '');
 
         // The subject will be personalized on the server side just before sending
-        const unpersonalizedSubjectTemplate = currentEmailSubject;
+        const unpersonalizedSubjectTemplate = emailSubject;
 
         return {
             to: identity.email,
             subject: unpersonalizedSubjectTemplate, // Send the unpersonalized template
             body: htmlBody, // Still include body for client-side display
             templatePath, // Include templatePath
-            senderName: currentSenderName, // Include the current sender name
+            senderName: senderName, // Include the current sender name
         };
     };
 
@@ -455,8 +459,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let templateIndex = 0; // Initialize index for round-robin
         for (const identity of identities) {
             const currentTemplatePath = templatesToUse[templateIndex];
-            await loadEmailTemplate(currentTemplatePath); // Load the current template
-            const email = generateEmailContent(identity, emailTemplateContent, currentTemplatePath);
+            const { templateContent, senderName, emailSubject } = await loadEmailTemplate(currentTemplatePath); // Load the current template and get its data
+            const email = generateEmailContent(identity, templateContent, currentTemplatePath, senderName, emailSubject);
             // Modify addEmail to also store allGeneratedEmails
             addEmail(email, identity, allGeneratedEmails);
 
