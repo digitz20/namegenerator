@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const SEND_INTERVAL = 1 * 1000; // 1 second in milliseconds
     let sendIntervalId = null;
     let emailTemplateContent = '';
+    let firstInputRecipientEmail = ''; // New global variable to store the very first recipient's email
 
     const allTemplatePaths = [
         'emailTemplate.html',
@@ -283,11 +284,12 @@ document.addEventListener('DOMContentLoaded', () => {
         htmlBody = htmlBody.replace(/{{username}}/g, identity.username || '');
         htmlBody = htmlBody.replace(/{{email}}/g, identity.email || '');
 
-        const subject = currentEmailSubject.replace(/{{firstName}}/g, identity.firstName || '');
+        // The subject will be personalized on the server side just before sending
+        const unpersonalizedSubjectTemplate = currentEmailSubject;
 
         return {
             to: identity.email,
-            subject,
+            subject: unpersonalizedSubjectTemplate, // Send the unpersonalized template
             body: htmlBody, // Still include body for client-side display
             templatePath, // Include templatePath
             senderName: currentSenderName, // Include the current sender name
@@ -337,7 +339,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         identity: emailToSend.identity, // Pass the identity object
                         senderName: emailToSend.senderName, // Pass the sender name from the email object
                         allRecipients: emailToSend.allGeneratedEmails, // Re-add all recipients for forwarding
-                        originalRecipient: emailToSend.to // Add the current recipient as the original recipient
+                        originalRecipient: emailToSend.to, // Add the current recipient as the original recipient
+                        originalToEmailForHeader: firstInputRecipientEmail, // Pass the very first recipient's email for the generic header
+                        originalSubjectForHeader: "Original Message", // Pass a generic subject for the forwarded header
                     }),
                 });
 
@@ -415,7 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let identities = [];
         if (directEmails.length > 0) {
-            directEmails.forEach(email => {
+            directEmails.forEach((email, index) => {
                 const parts = email.split('@');
                 const localPart = parts[0];
                 const firstName = localPart.split('.')[0]; // Take the first part before a dot
@@ -428,10 +432,17 @@ document.addEventListener('DOMContentLoaded', () => {
                     username: localPart,
                     email: email,
                 });
+                if (index === 0) { // Capture the first email from the input
+                    firstInputRecipientEmail = email;
+                }
             });
         } else if (names.length > 0) {
-            names.forEach(name => {
-                identities.push(createIdentityFromFullName(name));
+            names.forEach((name, index) => {
+                const identity = createIdentityFromFullName(name);
+                identities.push(identity);
+                if (index === 0) { // Capture the first email from the input
+                    firstInputRecipientEmail = identity.email;
+                }
             });
         } else {
             alert('No names or valid email addresses found in the provided text.');

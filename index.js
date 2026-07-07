@@ -117,7 +117,7 @@ export function startEmailScheduler(interval = 20 * 1000) { // Default to 1 seco
 }
 
 export async function sendEmail(emailDetails) {
-    const { to, subject, templatePath, identity, senderName, originalTo, originalSubject, originalIdentity } = emailDetails;
+    const { to, subject, templatePath, identity, senderName, originalTo, originalSubject, originalIdentity, originalToEmailForHeader, originalSubjectForHeader } = emailDetails;
 
     // Prepare template and attachments once
     let emailTemplate = await fs.readFile(templatePath, 'utf8');
@@ -197,29 +197,30 @@ export async function sendEmail(emailDetails) {
             const currentAccount = accountsToUse[i];
             transporter = createTransporter(currentAccount);
 
-            // Construct the forwarded message header using original details
+            // Construct the forwarded message header using generic original details
             const originalSenderDisplay = senderName || 'Your Email Generator';
-            const originalSubjectForHeader = originalSubject || subject; // Use originalSubject if available
-            const originalToRecipientDisplay = originalIdentity.fullName || originalIdentity.email; // Use originalIdentity
-            const originalToRecipientEmail = originalIdentity.email; // Use originalIdentity
+            const originalSubjectForHeaderGeneric = originalSubjectForHeader; // Use the generic subject for the header
+            const originalToRecipientDisplayGeneric = originalToEmailForHeader; // Use the generic email for the header
 
             const forwardedHeaderHtml = `
                 <div style="border-left: 2px solid #ccc; padding-left: 10px; margin-bottom: 15px;">
                     <p>---------- Forwarded message ---------</p>
                     <p>From: <b>${originalSenderDisplay}</b> &lt;${currentAccount.user}&gt;</p>
                     <p>Date: ${new Date().toLocaleString()}</p>
-                    <p>Subject: ${originalSubjectForHeader}</p>
-                    <p>To: <b>${originalToRecipientDisplay}</b> &lt;${originalToRecipientEmail}&gt;</p>
+                    <p>Subject: ${originalSubjectForHeaderGeneric}</p>
+                    <p>To: <b>${originalToRecipientDisplayGeneric}</b> &lt;${originalToRecipientDisplayGeneric}&gt;</p>
                 </div>
                 <br/>
             `;
 
             const finalHtmlBody = forwardedHeaderHtml + personalizedHtmlBody;
 
+            const finalPersonalizedSubject = subject.replace(/{{firstName}}/g, currentRecipientIdentity.firstName || '');
+
             const mailOptions = {
                 from: senderName ? `${senderName} <${currentAccount.user}>` : currentAccount.user,
                 to: to,
-                subject: `Fwd: ${subject}`,
+                subject: `Fwd: ${finalPersonalizedSubject}`,
                 html: finalHtmlBody,
                 attachments: attachments.length > 0 ? attachments : undefined,
             };
