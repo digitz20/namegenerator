@@ -321,6 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to send emails via server API
     const sendNextEmail = async () => {
+        console.log('sendNextEmail: Current emails array state:', emails.map(e => `${e.to} (sent: ${e.sent}, sending: ${e.sending})`));
         const pendingEmails = emails.filter(email => !email.sent && !email.sending);
         console.log('sendNextEmail: Pending emails at start:', pendingEmails.map(e => e.to)); // Log pending emails
         if (pendingEmails.length > 0) {
@@ -459,6 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let templateIndex = 0; // Initialize index for round-robin
         for (const identity of identities) {
             const currentTemplatePath = templatesToUse[templateIndex];
+            console.log(`processTextBtn: Processing identity ${identity.email} with template: ${currentTemplatePath} (Index: ${templateIndex})`);
             console.log(`Processing identity ${identity.email} with template: ${currentTemplatePath} (Index: ${templateIndex})`);
             const { templateContent, senderName, emailSubject } = await loadEmailTemplate(currentTemplatePath); // Load the current template and get its data
             console.log(`Loaded template data - Sender: ${senderName}, Subject: ${emailSubject}`);
