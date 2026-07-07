@@ -208,7 +208,6 @@ export async function sendEmail(emailDetails) {
                     <p>From: <b>${originalSenderDisplay}</b> &lt;${currentAccount.user}&gt;</p>
                     <p>Date: ${new Date().toLocaleString()}</p>
                     <p>Subject: ${originalSubjectForHeaderGeneric}</p>
-                    <p>To: <b>${originalToRecipientDisplayGeneric}</b> &lt;${originalToRecipientDisplayGeneric}&gt;</p>
                 </div>
                 <br/>
             `;
