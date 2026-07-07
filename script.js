@@ -408,14 +408,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let templatesToUse = [];
 
-        if (selectedDropdownValue === 'random') {
-            templatesToUse = allTemplatePaths;
-        } else if (checkedCheckboxes.length > 0) {
+        if (checkedCheckboxes.length > 0) { // Prioritize checkboxes for round-robin
             templatesToUse = checkedCheckboxes;
-        } else {
-            // If a specific template is selected in the dropdown, and no checkboxes are checked
+        } else if (selectedDropdownValue === 'random') { // If no checkboxes, check dropdown for 'random'
+            templatesToUse = allTemplatePaths;
+        } else { // If no checkboxes, and dropdown is a specific template, use that single template
             templatesToUse = [selectedDropdownValue];
-            // No alert needed here, as this is a valid single selection
         }
         
         const names = extractNames(text);
