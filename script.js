@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
             iframe.style.height = '300px'; // Adjust height as needed
             iframe.style.border = '1px solid #ddd';
             iframe.style.backgroundColor = '#fff';
-            iframe.sandbox = 'allow-same-origin'; // Restrict iframe capabilities for security
+            iframe.sandbox = 'allow-scripts allow-same-origin'; // Allow scripts and same-origin access
             previewContainer.appendChild(iframe);
 
             templatePreviewArea.appendChild(previewContainer);
@@ -322,8 +322,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to send emails via server API
     const sendNextEmail = async () => {
         const pendingEmails = emails.filter(email => !email.sent && !email.sending);
+        console.log('sendNextEmail: Pending emails at start:', pendingEmails.map(e => e.to)); // Log pending emails
         if (pendingEmails.length > 0) {
             const emailToSend = pendingEmails[0];
+            console.log('sendNextEmail: Email to send:', emailToSend.to, 'Template:', emailToSend.templatePath); // Log email to send
             emailToSend.sending = true; // Mark as sending
             saveEmails();
             renderEmails();
@@ -354,6 +356,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log(`Server responded: ${result.message}`);
                     // Remove the sent email from the list
                     emails = emails.filter(email => email !== emailToSend);
+                    console.log('sendNextEmail: Emails array after successful send and removal:', emails.map(e => e.to)); // Log emails array after removal
                     saveEmails();
                     renderEmails();
                     console.log(`Email sent and removed: ${emailToSend.to}`);
@@ -468,6 +471,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             templateIndex = (templateIndex + 1) % templatesToUse.length; // Move to the next template, loop back if at end
         }
+        console.log('Final emails array after generation:', emails); // Add this log
         inputText.value = ''; // Clear the textarea after processing
     });
 
