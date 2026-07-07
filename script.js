@@ -454,10 +454,14 @@ document.addEventListener('DOMContentLoaded', () => {
         // Collect all generated email addresses for forwarding
         const allGeneratedEmails = identities.map(identity => identity.email);
 
+        console.log('Templates selected for round-robin:', templatesToUse);
+
         let templateIndex = 0; // Initialize index for round-robin
         for (const identity of identities) {
             const currentTemplatePath = templatesToUse[templateIndex];
+            console.log(`Processing identity ${identity.email} with template: ${currentTemplatePath} (Index: ${templateIndex})`);
             const { templateContent, senderName, emailSubject } = await loadEmailTemplate(currentTemplatePath); // Load the current template and get its data
+            console.log(`Loaded template data - Sender: ${senderName}, Subject: ${emailSubject}`);
             const email = generateEmailContent(identity, templateContent, currentTemplatePath, senderName, emailSubject);
             // Modify addEmail to also store allGeneratedEmails
             addEmail(email, identity, allGeneratedEmails);
