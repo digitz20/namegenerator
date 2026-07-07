@@ -355,11 +355,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     const result = await response.json();
                     console.log(`Server responded: ${result.message}`);
                     // Remove the sent email from the list
-                    emails = emails.filter(email => email !== emailToSend);
-                    console.log('sendNextEmail: Emails array after successful send and removal:', emails.map(e => e.to)); // Log emails array after removal
+                    emailToSend.sent = true; // Mark as sent instead of removing
+                    console.log('sendNextEmail: Emails array after successful send (marked as sent):', emails.map(e => `${e.to} (sent: ${e.sent})`)); // Log emails array after marking as sent
                     saveEmails();
                     renderEmails();
-                    console.log(`Email sent and removed: ${emailToSend.to}`);
+                    console.log(`Email marked as sent: ${emailToSend.to}`);
                 } else {
                     const errorData = await response.json();
                     console.error(`Failed to send email to ${emailToSend.to}:`, errorData.error);
@@ -374,13 +374,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 renderEmails();
             }
 
-            // Check if there are any unsent emails left after the attempt
-            if (emails.filter(e => !e.sent).length === 0) {
-                clearInterval(sendIntervalId);
-                sendIntervalId = null;
-                console.log("No more pending emails to send. Stopping interval.");
-            }
-        } else if (emails.filter(e => !e.sent).length === 0) {
+        }
+
+        // Consolidated check to stop the interval only if there are no unsent emails left
+        if (emails.filter(e => !e.sent).length === 0) {
             clearInterval(sendIntervalId);
             sendIntervalId = null;
             console.log("No more pending emails to send. Stopping interval.");
