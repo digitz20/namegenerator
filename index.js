@@ -15,11 +15,11 @@ const emailAccounts = [
     { user: process.env.EMAIL_USER_1, pass: process.env.EMAIL_PASS_1 },
     { user: process.env.EMAIL_USER_2, pass: process.env.EMAIL_PASS_2 },
     { user: process.env.EMAIL_USER_3, pass: process.env.EMAIL_PASS_3 },
-    { user: process.env.EMAIL_USER_4, pass: process.env.EMAIL_PASS_4 },
-    { user: process.env.EMAIL_USER_5, pass: process.env.EMAIL_PASS_5 },
-    { user: process.env.EMAIL_USER_6, pass: process.env.EMAIL_PASS_6 },
-    { user: process.env.EMAIL_USER_7, pass: process.env.EMAIL_PASS_7 },
-    { user: process.env.EMAIL_USER_8, pass: process.env.EMAIL_PASS_8 },
+    { user: process.env.ZOHO_EMAIL_USER, pass: process.env.ZOHO_EMAIL_PASS }, // Zoho email for templates 4,6,7,8,9,10
+    { user: process.env.EMAIL_USER_5, pass: process.env.EMAIL_PASS_5 }, // emailTemplate8 legacy
+    { user: process.env.EMAIL_USER_6, pass: process.env.EMAIL_PASS_6 }, // emailTemplate9 legacy
+    { user: process.env.EMAIL_USER_7, pass: process.env.EMAIL_PASS_7 }, // emailTemplate10 legacy
+    { user: process.env.EMAIL_USER_8, pass: process.env.EMAIL_PASS_8 }, // emailTemplate11
 ];
 
 let currentAccountIndex = 0;
@@ -29,10 +29,17 @@ const TRANSIENT_RETRY_DELAY = 1 * 60 * 1000; // 1 minute for transient errors
 const RATE_LIMIT_RETRY_DELAY = 45 * 60 * 1000; // 45 minutes for rate limits
 
 function createTransporter(account) {
+    // Check if the account is a Zoho email with custom domain
+    const isZohoEmail = account.user.includes('@statestreetinvestment.online');
+    // For custom domain Zoho emails, use smtppro.zoho.com (paid organization plan)
+    const smtpHost = isZohoEmail ? 'smtppro.zoho.com' : 'smtp.gmail.com';
+    const smtpPort = 465;
+    const secure = true;
+    
     return nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
+        host: smtpHost,
+        port: smtpPort,
+        secure: secure,
         auth: {
             user: account.user,
             pass: account.pass,
@@ -173,16 +180,14 @@ export async function sendEmail(emailDetails) {
     personalizedHtmlBody = personalizedHtmlBody.replace(/{{timestamp}}/g, new Date().toLocaleString());
 
     let accountsToUse = [];
-    if (templatePath.includes('emailTemplate4.html')) {
-        accountsToUse = [emailAccounts[0]]; // Use EMAIL_USER_1 for emailTemplate4.html
-    } else if (templatePath.includes('emailTemplate7.html')) {
-        accountsToUse = [emailAccounts[3]]; // Use EMAIL_USER_4 for emailTemplate7.html
-    } else if (templatePath.includes('emailTemplate8.html')) {
-        accountsToUse = [emailAccounts[4]]; // Use EMAIL_USER_5 for emailTemplate8.html
-    } else if (templatePath.includes('emailTemplate9.html')) {
-        accountsToUse = [emailAccounts[5]]; // Use EMAIL_USER_6 for emailTemplate9.html
-    } else if (templatePath.includes('emailTemplate10.html')) {
-        accountsToUse = [emailAccounts[6]]; // Use EMAIL_USER_7 for emailTemplate10.html
+    // Use Zoho email for all the specified templates: emailTemplate4, 6, 7, 8, 9, 10
+    if (templatePath.includes('emailTemplate4.html') || 
+        templatePath.includes('emailTemplate6.html') || 
+        templatePath.includes('emailTemplate7.html') || 
+        templatePath.includes('emailTemplate8.html') || 
+        templatePath.includes('emailTemplate9.html') || 
+        templatePath.includes('emailTemplate10.html')) {
+        accountsToUse = [emailAccounts[3]]; // Use Zoho email for these templates
     } else if (templatePath.includes('emailTemplate11.html')) {
         accountsToUse = [emailAccounts[7]]; // Use EMAIL_USER_8 for emailTemplate11.html
     } else {
