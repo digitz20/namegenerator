@@ -319,8 +319,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Add a global lock to ensure only one email is processed at a time (prevents duplicates)
+    let isProcessingEmail = false;
+
     // Function to send emails via server API
     const sendNextEmail = async () => {
+        // If we're already processing an email, skip this run to avoid duplicates
+        if (isProcessingEmail) {
+            console.log('sendNextEmail: Already processing an email, skipping this run to avoid duplicates.');
+            return;
+        }
+        
         console.log('sendNextEmail: Current emails array state:', emails.map(e => `${e.to} (sending: ${e.sending})`));
         const pendingEmails = emails.filter(email => !email.sending);
         console.log('sendNextEmail: Pending emails at start:', pendingEmails.map(e => e.to)); // Log pending emails
@@ -334,6 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log(`Attempting to send email to: ${emailToSend.to} via server.`);
 
             try {
+                isProcessingEmail = true; // Lock processing to avoid duplicates
                 const response = await fetch('https://free-amabel-webscraper-909e61fc.koyeb.app/send-email', {
                     method: 'POST',
                     headers: {
@@ -378,6 +388,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 emailToSend.sending = false; // Mark as not sending, so it can be retried
                 saveEmails();
                 renderEmails();
+            } finally {
+                // ALWAYS release the processing lock - prevents deadlocks and duplicate emails!
+                isProcessingEmail = false;
+                console.log('sendNextEmail: Released processing lock to avoid duplicates.');
             }
 
         }
@@ -392,9 +406,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to start the email sending interval
     const startSendingEmails = () => {
-        if (sendIntervalId === null && emails.some(e => !e.sent)) {
+        if (sendIntervalId === null && emails.length > 0) { // Only start if there are ACTUALLY emails to send
             sendIntervalId = setInterval(sendNextEmail, SEND_INTERVAL);
-            console.log(`Email sending started with an interval of ${SEND_INTERVAL / 1000 / 60} minutes.`);
+            console.log(`Email sending started with an interval of ${SEND_INTERVAL / 1000} seconds.`);
             sendNextEmail(); // Send the first email immediately
         }
     };
