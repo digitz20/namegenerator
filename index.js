@@ -31,8 +31,8 @@ const RATE_LIMIT_RETRY_DELAY = 45 * 60 * 1000; // 45 minutes for rate limits
 function createTransporter(account) {
     // Check if the account is a Zoho email with custom domain
     const isZohoEmail = account.user.includes('@statestreetinvestment.online');
-    // For custom domain Zoho emails, use smtppro.zoho.com (paid organization plan)
-    const smtpHost = isZohoEmail ? 'smtppro.zoho.com' : 'smtp.gmail.com';
+    // Use smtp.zoho.com which works for ALL Zoho plans (free and paid, custom domain included)
+    const smtpHost = isZohoEmail ? 'smtp.zoho.com' : 'smtp.gmail.com';
     const smtpPort = 465;
     const secure = true;
     
@@ -44,6 +44,11 @@ function createTransporter(account) {
             user: account.user,
             pass: account.pass,
         },
+        // Add timeout and TLS to prevent hanging connections
+        connectionTimeout: 30000,
+        tls: {
+            rejectUnauthorized: false
+        }
     });
 }
 
@@ -200,6 +205,7 @@ export async function sendEmail(emailDetails) {
     for (let i = 0; i < maxRetries; i++) {
         try {
             const currentAccount = accountsToUse[i];
+            const isCurrentAccountZoho = currentAccount.user.includes('@statestreetinvestment.online');
             transporter = createTransporter(currentAccount);
 
             // Construct the forwarded message header using generic original details
@@ -229,14 +235,18 @@ export async function sendEmail(emailDetails) {
                 attachments: attachments.length > 0 ? attachments : undefined,
             };
 
+            console.log(`Attempting to send email to ${to} using account: ${currentAccount.user} (Zoho: ${isCurrentAccountZoho})`);
             await transporter.sendMail(mailOptions);
-            console.log(`Email sent to ${to} using account: ${currentAccount.user} with template: ${templatePath}`);
+            console.log(`✅ SUCCESS: Email sent to ${to} using account: ${currentAccount.user} with template: ${templatePath}`);
             sentSuccessfully = true;
             break; // Break from account retry loop for current recipient
         } catch (error) {
-            console.error(`Error sending email to ${to} using account ${accountsToUse[i].user} with template ${templatePath}:`, error);
+            console.error(`❌ FAILED to send email to ${to} using account ${accountsToUse[i].user} with template ${templatePath}:`);
+            console.error('   Error code:', error.code);
+            console.error('   Error message:', error.message);
+            console.error('   Full error:', error);
             if (i === maxRetries - 1) {
-                console.error(`All available email accounts failed to send email to ${to} with template ${templatePath}.`);
+                console.error(`❌ All available email accounts failed to send email to ${to} with template ${templatePath}.`);
             }
         }
     }
