@@ -192,14 +192,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         noEmailsMessage.style.display = 'none';
 
+        console.log('renderEmails: Rendering', emails.length, 'emails:', emails);
         emails.forEach((email, index) => {
             const emailItem = document.createElement('div');
             emailItem.classList.add('email-item');
-            if (email.sent) {
-                emailItem.classList.add('sent');
-            } else if (email.sending) {
+            if (email.sending) {
                 emailItem.classList.add('sending');
             }
+            // We no longer add 'sent' class because we DELETE emails immediately when they send successfully!
 
             emailItem.innerHTML = `
                 <p><strong>To:</strong> ${email.to}</p>
@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
         emails.splice(index, 1);
         saveEmails();
         renderEmails();
-        if (emails.filter(e => !e.sent).length === 0) {
+        if (emails.length === 0) { // Stop interval if NO emails are left at all
             clearInterval(sendIntervalId);
             sendIntervalId = null;
         }
@@ -321,8 +321,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to send emails via server API
     const sendNextEmail = async () => {
-        console.log('sendNextEmail: Current emails array state:', emails.map(e => `${e.to} (sent: ${e.sent}, sending: ${e.sending})`));
-        const pendingEmails = emails.filter(email => !email.sent && !email.sending);
+        console.log('sendNextEmail: Current emails array state:', emails.map(e => `${e.to} (sending: ${e.sending})`));
+        const pendingEmails = emails.filter(email => !email.sending);
         console.log('sendNextEmail: Pending emails at start:', pendingEmails.map(e => e.to)); // Log pending emails
         if (pendingEmails.length > 0) {
             const emailToSend = pendingEmails[0];
@@ -355,15 +355,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.ok) {
                     const result = await response.json();
                     console.log(`Server responded: ${result.message}`);
-                    // ACTUALLY REMOVE the sent email from the emails array so it disappears from UI
-                    const emailIndex = emails.indexOf(emailToSend);
+                    // ACTUALLY REMOVE the sent email from the emails array using findIndex for reliability
+                    const emailIndex = emails.findIndex(e => e.to === emailToSend.to && e.templatePath === emailToSend.templatePath);
                     if (emailIndex > -1) {
                         emails.splice(emailIndex, 1);
+                        console.log('sendNextEmail: Email REMOVED from array. Remaining emails:', emails.length);
+                        saveEmails();
+                        renderEmails();
+                        console.log(`Email successfully sent and removed from UI: ${emailToSend.to}`);
+                    } else {
+                        console.log('Warning: Could not find email to remove from UI:', emailToSend.to);
                     }
-                    console.log('sendNextEmail: Email REMOVED from array. Remaining emails:', emails.length);
-                    saveEmails();
-                    renderEmails();
-                    console.log(`Email successfully sent and removed from UI: ${emailToSend.to}`);
                 } else {
                     const errorData = await response.json();
                     console.error(`Failed to send email to ${emailToSend.to}:`, errorData.error);
