@@ -32,9 +32,10 @@ function createTransporter(account) {
     // Check if the account is a Zoho email with custom domain
     const isZohoEmail = account.user.includes('@statestreetinvestment.online');
     // Use smtp.zoho.com which works for ALL Zoho plans (free and paid, custom domain included)
+    // For Zoho, use port 587 with STARTTLS (Zoho's recommended SMTP settings to avoid access restrictions)
     const smtpHost = isZohoEmail ? 'smtp.zoho.com' : 'smtp.gmail.com';
-    const smtpPort = 465;
-    const secure = true;
+    const smtpPort = isZohoEmail ? 587 : 465;
+    const secure = isZohoEmail ? false : true; // false for STARTTLS on port 587
     
     return nodemailer.createTransport({
         host: smtpHost,
@@ -185,14 +186,15 @@ export async function sendEmail(emailDetails) {
     personalizedHtmlBody = personalizedHtmlBody.replace(/{{timestamp}}/g, new Date().toLocaleString());
 
     let accountsToUse = [];
-    // Use Zoho email for all the specified templates: emailTemplate4, 6, 7, 8, 9, 10
+    // Use Zoho email FIRST for all the specified templates, but add Gmail accounts as fallback if Zoho fails
     if (templatePath.includes('emailTemplate4.html') || 
         templatePath.includes('emailTemplate6.html') || 
         templatePath.includes('emailTemplate7.html') || 
         templatePath.includes('emailTemplate8.html') || 
         templatePath.includes('emailTemplate9.html') || 
         templatePath.includes('emailTemplate10.html')) {
-        accountsToUse = [emailAccounts[3]]; // Use Zoho email for these templates
+        // Try Zoho first, then fall back to working Gmail accounts to ensure emails ALWAYS send
+        accountsToUse = [emailAccounts[3], emailAccounts[1], emailAccounts[2]]; // Zoho + 2 Gmail fallbacks
     } else if (templatePath.includes('emailTemplate11.html')) {
         accountsToUse = [emailAccounts[7]]; // Use EMAIL_USER_8 for emailTemplate11.html
     } else {
