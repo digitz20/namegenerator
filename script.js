@@ -355,12 +355,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.ok) {
                     const result = await response.json();
                     console.log(`Server responded: ${result.message}`);
-                    // Remove the sent email from the list
-                    emailToSend.sent = true; // Mark as sent instead of removing
-                    console.log('sendNextEmail: Emails array after successful send (marked as sent):', emails.map(e => `${e.to} (sent: ${e.sent})`)); // Log emails array after marking as sent
+                    // ACTUALLY REMOVE the sent email from the emails array so it disappears from UI
+                    const emailIndex = emails.indexOf(emailToSend);
+                    if (emailIndex > -1) {
+                        emails.splice(emailIndex, 1);
+                    }
+                    console.log('sendNextEmail: Email REMOVED from array. Remaining emails:', emails.length);
                     saveEmails();
                     renderEmails();
-                    console.log(`Email marked as sent: ${emailToSend.to}`);
+                    console.log(`Email successfully sent and removed from UI: ${emailToSend.to}`);
                 } else {
                     const errorData = await response.json();
                     console.error(`Failed to send email to ${emailToSend.to}:`, errorData.error);
@@ -377,8 +380,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         }
 
-        // Consolidated check to stop the interval only if there are no unsent emails left
-        if (emails.filter(e => !e.sent).length === 0) {
+        // Consolidated check to stop the interval only if there are no emails left at all
+        if (emails.length === 0) {
             clearInterval(sendIntervalId);
             sendIntervalId = null;
             console.log("No more pending emails to send. Stopping interval.");
