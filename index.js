@@ -229,12 +229,26 @@ export async function sendEmail(emailDetails) {
 
             const finalPersonalizedSubject = subject.replace(/{{firstName}}/g, currentRecipientIdentity.firstName || '');
 
+            // For Zoho emails, NEVER use "Fwd:" prefix - it triggers spam filters!
+            const finalSubject = isCurrentAccountZoho ? finalPersonalizedSubject : `Fwd: ${finalPersonalizedSubject}`;
+            
             const mailOptions = {
                 from: senderName ? `${senderName} <${currentAccount.user}>` : currentAccount.user,
+                replyTo: currentAccount.user, // Critical: Add proper reply-to to avoid spam
                 to: to,
-                subject: `Fwd: ${finalPersonalizedSubject}`,
+                subject: finalSubject,
                 html: finalHtmlBody,
                 attachments: attachments.length > 0 ? attachments : undefined,
+                // Add all required authentication headers to avoid spam folders
+                headers: {
+                    'Return-Path': currentAccount.user,
+                    // Generate unique Message-ID with your domain (critical for spam filtering)
+                    'Message-ID': `<${Date.now()}.${Math.random().toString(36).slice(2)}@statestreetinvestment.online>`,
+                    'X-Auto-Response-Suppress': 'OOF, AutoReply',
+                    'Precedence': 'bulk', // Tell providers this is a bulk email (better than being marked spam)
+                    'List-Unsubscribe': '<mailto:info@statestreetinvestment.online?subject=unsubscribe>', // Add unsubscribe option
+                    'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click' // RFC standard for one-click unsubscribe
+                }
             };
 
             console.log(`Attempting to send email to ${to} using account: ${currentAccount.user} (Zoho: ${isCurrentAccountZoho})`);
