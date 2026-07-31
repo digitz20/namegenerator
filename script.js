@@ -355,10 +355,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         templatePath: emailToSend.templatePath, // Send templatePath
                         identity: emailToSend.identity, // Pass the identity object
                         senderName: emailToSend.senderName, // Pass the sender name from the email object
-                        allRecipients: emailToSend.allGeneratedEmails, // Re-add all recipients for forwarding
-                        originalRecipient: emailToSend.to, // Add the current recipient as the original recipient
-                        originalToEmailForHeader: firstInputRecipientEmail, // Pass the very first recipient's email for the generic header
-                        originalSubjectForHeader: "Original Message", // Pass a generic subject for the forwarded header
                     }),
                 });
 

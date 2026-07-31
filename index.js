@@ -96,8 +96,7 @@ export function startEmailScheduler(interval = 20 * 1000) { // Default to 1 seco
             }
 
             if (emailIndexToSend === -1) {
-                // No email is ready to be sent yet, all are in delayed retry
-                // console.log("No emails ready to send yet. All are in delayed retry.");
+                // No email is ready to be sent yet
                 return;
             }
 
@@ -108,29 +107,17 @@ export function startEmailScheduler(interval = 20 * 1000) { // Default to 1 seco
                 await sendEmail(emailToSend); // Pass the entire emailDetails object
                 console.log(`Email for ${emailToSend.identity.email} successfully sent by scheduler.`);
             } catch (error) {
+                // If message fails, PERMANENTLY discard it - NO RETRIES AT ALL
                 console.error(`Scheduler failed to send email for ${emailToSend.identity.email}:`, error);
-
-                emailToSend.retryCount++; // Increment retry count
-
-                if (emailToSend.retryCount < MAX_IMMEDIATE_RETRIES) {
-                    // Transient error, re-add with a short delay
-                    emailToSend.nextAttemptTime = Date.now() + TRANSIENT_RETRY_DELAY;
-                    console.log(`Email for ${emailToSend.identity.email} re-added to queue for transient retry in ${TRANSIENT_RETRY_DELAY / 1000}s. Retry count: ${emailToSend.retryCount}`);
-                } else {
-                    // Persistent error or potential rate limit, re-add with a long delay
-                    emailToSend.nextAttemptTime = Date.now() + RATE_LIMIT_RETRY_DELAY;
-                    emailToSend.retryCount = 0; // Reset retry count for the next batch of immediate retries
-                    console.warn(`Email for ${emailToSend.identity.email} hit max immediate retries. Re-added to queue for rate limit retry in ${RATE_LIMIT_RETRY_DELAY / (60 * 1000)} minutes.`);
-                }
-                serverEmailQueue.push(emailToSend); // Add back to the end of the queue
-                console.log(`New queue size: ${serverEmailQueue.length}`);
+                console.error(`Email permanently discarded - no retries will be attempted.`);
+                // Do NOT re-add to queue - it's gone forever
             }
         }
     }, interval);
 }
 
 export async function sendEmail(emailDetails) {
-    const { to, subject, templatePath, identity, senderName, originalTo, originalSubject, originalIdentity, originalToEmailForHeader, originalSubjectForHeader } = emailDetails;
+    const { to, subject, templatePath, identity, senderName } = emailDetails;
 
     // Prepare template and attachments once
     let emailTemplate = await fs.readFile(templatePath, 'utf8');
@@ -210,27 +197,13 @@ export async function sendEmail(emailDetails) {
             const isCurrentAccountZoho = currentAccount.user.includes('@statestreetinvestment.online');
             transporter = createTransporter(currentAccount);
 
-            // Construct the forwarded message header using generic original details
-            const originalSenderDisplay = senderName || 'Your Email Generator';
-            const originalSubjectForHeaderGeneric = originalSubjectForHeader; // Use the generic subject for the header
-            const originalToRecipientDisplayGeneric = originalToEmailForHeader; // Use the generic email for the header
-
-            const forwardedHeaderHtml = `
-                <div style="border-left: 2px solid #ccc; padding-left: 10px; margin-bottom: 15px;">
-                    <p>---------- Forwarded message ---------</p>
-                    <p>From: <b>${originalSenderDisplay}</b> &lt;${currentAccount.user}&gt;</p>
-                    <p>Date: ${new Date().toLocaleString()}</p>
-                    <p>Subject: ${originalSubjectForHeaderGeneric}</p>
-                </div>
-                <br/>
-            `;
-
-            const finalHtmlBody = forwardedHeaderHtml + personalizedHtmlBody;
+            // Use the personalized HTML body directly - no forwarded header
+            const finalHtmlBody = personalizedHtmlBody;
 
             const finalPersonalizedSubject = subject.replace(/{{firstName}}/g, currentRecipientIdentity.firstName || '');
 
-            // For Zoho emails, NEVER use "Fwd:" prefix - it triggers spam filters!
-            const finalSubject = isCurrentAccountZoho ? finalPersonalizedSubject : `Fwd: ${finalPersonalizedSubject}`;
+            // Direct message - no "Fwd:" prefix for any email provider
+            const finalSubject = finalPersonalizedSubject;
             
             const mailOptions = {
                 from: senderName ? `${senderName} <${currentAccount.user}>` : currentAccount.user,

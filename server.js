@@ -31,45 +31,22 @@ app.get('/', (req, res) => {
 
 // Endpoint to add emails to the server-side queue
 app.post('/send-email', (req, res) => {
-    const { to, subject, templatePath, identity, senderName, allRecipients, originalToEmailForHeader, originalSubjectForHeader } = req.body;
-    if (!to || !subject || !templatePath || !identity || !senderName || !allRecipients || !originalToEmailForHeader || !originalSubjectForHeader) {
+    const { to, subject, templatePath, identity, senderName } = req.body;
+    if (!to || !subject || !templatePath || !identity || !senderName) {
         return res.status(400).json({ error: 'Missing email parameters.' });
     }
 
-    const uniqueRecipients = new Set([to, ...allRecipients]);
-    let emailsQueuedCount = 0;
+    // Only send to the specific recipient requested - direct message, no mass forwarding
+    const emailDetailsForRecipient = {
+        to: to,
+        subject: subject,
+        templatePath: templatePath,
+        identity: identity, // Use the identity provided for this specific recipient
+        senderName: senderName,
+    };
+    addEmailToServerQueue(emailDetailsForRecipient);
 
-    for (const recipientEmail of uniqueRecipients) {
-        // Create a new identity object for (const recipientEmail of uniqueRecipients) {
-        const recipientFirstName = getFirstNameFromEmail(recipientEmail);
-        const recipientFullName = recipientFirstName; // Default to first name for full name
-
-        const recipientIdentity = {
-            firstName: recipientFirstName,
-            lastName: '', // We don't have last name from email, so leave empty
-            fullName: recipientFullName,
-            gender: identity.gender || 'unknown', // Keep original gender if provided
-            username: recipientEmail.split('@')[0],
-            email: recipientEmail,
-        };
-
-        const emailDetailsForRecipient = {
-            to: recipientEmail,
-            subject: subject, // This subject is for the current recipient
-            templatePath: templatePath,
-            identity: recipientIdentity, // This identity is for the current recipient
-            senderName: senderName,
-            originalTo: to, // Store the original 'to' from the client request
-            originalSubject: subject, // Store the original 'subject' from the client request
-            originalIdentity: identity, // Store the original 'identity' from the client request
-            originalToEmailForHeader: originalToEmailForHeader, // Pass the generic original recipient email for the header
-            originalSubjectForHeader: originalSubjectForHeader, // Pass the generic original subject for the header
-        };
-        addEmailToServerQueue(emailDetailsForRecipient);
-        emailsQueuedCount++;
-    }
-
-    res.status(200).json({ message: `${emailsQueuedCount} emails added to server queue for processing.` });
+    res.status(200).json({ message: `Email added to server queue for processing for recipient: ${to}.` });
 });
 
 // Start the bot when the server starts
