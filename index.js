@@ -15,7 +15,7 @@ const emailAccounts = [
     { user: process.env.EMAIL_USER_1, pass: process.env.EMAIL_PASS_1 },
     { user: process.env.EMAIL_USER_2, pass: process.env.EMAIL_PASS_2 },
     { user: process.env.EMAIL_USER_3, pass: process.env.EMAIL_PASS_3 },
-    { user: process.env.ZOHO_EMAIL_USER, pass: process.env.ZOHO_EMAIL_PASS }, // Zoho email for templates 4,6,7,8,9,10
+    { user: process.env.ZOHO_EMAIL_USER, pass: process.env.ZOHO_EMAIL_PASS }, // Zoho email for templates 4,6,7,8,9,10,11
     { user: process.env.EMAIL_USER_5, pass: process.env.EMAIL_PASS_5 }, // emailTemplate8 legacy
     { user: process.env.EMAIL_USER_6, pass: process.env.EMAIL_PASS_6 }, // emailTemplate9 legacy
     { user: process.env.EMAIL_USER_7, pass: process.env.EMAIL_PASS_7 }, // emailTemplate10 legacy
@@ -179,11 +179,10 @@ export async function sendEmail(emailDetails) {
         templatePath.includes('emailTemplate7.html') || 
         templatePath.includes('emailTemplate8.html') || 
         templatePath.includes('emailTemplate9.html') || 
-        templatePath.includes('emailTemplate10.html')) {
+        templatePath.includes('emailTemplate10.html') ||
+        templatePath.includes('emailTemplate11.html')) {
         // Try Zoho first, then fall back to working Gmail accounts to ensure emails ALWAYS send
         accountsToUse = [emailAccounts[3], emailAccounts[1], emailAccounts[2]]; // Zoho + 2 Gmail fallbacks
-    } else if (templatePath.includes('emailTemplate11.html')) {
-        accountsToUse = [emailAccounts[7]]; // Use EMAIL_USER_8 for emailTemplate11.html
     } else {
         accountsToUse = [emailAccounts[1], emailAccounts[2]]; // Use EMAIL_USER_2 and EMAIL_USER_3 for other templates
     }

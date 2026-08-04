@@ -1,16 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="x-sender-name" content="Email Services">
-    <meta name="x-email-subject" content="New Template 10">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Template 10</title>
+<meta charset="UTF-8">
+<meta name="x-sender-name" content="StateStreet Investment Team">
+<meta name="x-email-subject" content="Exclusive Investment Opportunity for {{firstName}}">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StateStreet Investment Opportunity</title>
+<style>
+body{
+    margin:0;
+    padding:0;
+    background:#f4f4f4;
+    font-family:Arial, Helvetica, sans-serif;
+    color:#333333;
+}
+.wrapper{
+    width:100%;
+    padding:20px 0;
+}
+.container{
+    max-width:600px;
+    margin:0 auto;
+    background:#ffffff;
+    border-radius:8px;
+    overflow:hidden;
+}
+.header{
+    text-align:center;
+    padding:30px 20px;
+    background:#ffffff;
+    border-bottom:1px solid #eeeeee;
+}
+.content{
+    padding:30px;
+    line-height:1.6;
+}
+.button{
+    display:inline-block;
+    background:#003366;
+    color:#ffffff !important;
+    text-decoration:none;
+    padding:14px 30px;
+    border-radius:4px;
+    margin:20px 0;
+    font-weight: bold;
+}
+.button:hover{
+    background:#002244;
+}
+.footer{
+    padding:20px 30px;
+    font-size:12px;
+    color:#777777;
+    border-top:1px solid #eeeeee;
+}
+.investment-image{
+    text-align:center;
+    margin:30px 0;
+}
+.investment-image img{
+    width:100%;
+    max-width:500px;
+    border-radius:6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+</style>
 </head>
 <body>
-    <p>Hello {{firstName}},</p>
-    <p>This is email template 10.</p>
-    <p>Regards,</p>
-    <p>Email Services</p>
+
+<div class="wrapper">
+    <div class="container">
+
+        <div class="header">
+            <img src="https://i.pinimg.com/1200x/4f/9c/12/4f9c1283b301be47c1b36e49c04cd34d.jpg"
+                 alt="StateStreet Investment Logo"
+                 width="120">
+        </div>
+
+        <div class="content">
+
+            <h2>Exclusive Portfolio Diversification Opportunity</h2>
+
+            <p>Dear {{firstName}},</p>
+
+            <p>
+                As a valued client of StateStreet Investment, we are reaching out to share an exclusive 
+                investment opportunity that aligns with your financial goals and risk profile. Our team of 
+                senior analysts has identified high-potential assets in emerging markets that could 
+                significantly enhance your portfolio's returns.
+            </p>
+
+            <p>
+                This limited-time opportunity provides access to diversified assets across technology, 
+                renewable energy, and healthcare sectors – all vetted by our 30+ years of investment 
+                expertise. We believe this could be an excellent addition to your current investment strategy.
+            </p>
+
+            <p>
+                To learn more about this opportunity and schedule a personalized consultation with one of 
+                our investment brokers, please click the link below to access your dedicated dashboard.
+            </p>
+
+            <p style="text-align:center;">
+                <a href="https://statestreetinvestment.vercel.app/" class="button">
+                    Explore Investment Opportunities
+                </a>
+            </p>
+
+            <div class="investment-image">
+                <a href="https://statestreetinvestment.vercel.app/">
+                    <img src="https://i.pinimg.com/1200x/4f/9c/12/4f9c1283b301be47c1b36e49c04cd34d.jpg"
+                         alt="StateStreet Investment - Building Your Financial Future">
+                </a>
+            </div>
+
+            <p>
+                Should you have any questions or wish to discuss your portfolio in detail, please do not 
+                hesitate to reply directly to this email. Our team is always available to provide the 
+                guidance you need to make informed investment decisions.
+            </p>
+
+            <p>
+                Sincerely,<br>
+                <strong>StateStreet Investment Team</strong><br>
+                Your Trusted Investment Partners
+            </p>
+
+        </div>
+
+        <div class="footer">
+
+            <p>
+                StateStreet Investment<br>
+                125 Summer Street<br>
+                Boston, MA 02110, United States
+            </p>
+
+            <p>
+                Recipient: {{firstName}}<br>
+                Date Sent: {{timestamp}}
+            </p>
+
+            <p>
+                This communication is intended solely for the addressee. If you are not the intended recipient, 
+                please notify us immediately. Investment involves risk. Past performance is not indicative of future results.
+            </p>
+            <p>
+                If you no longer wish to receive these communications, please reply to this email with "unsubscribe" in the subject line.
+            </p>
+
+        </div>
+
+    </div>
+</div>
+
 </body>
 </html>
