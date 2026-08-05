@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="x-sender-name" content="StateStreet Investment Team">
-    <meta name="x-email-subject" content="Your Portfolio Update from StateStreet Investment">
+<meta name="x-sender-name" content="StateStreet Investment Client Services">
+<meta name="x-email-subject" content="Your Recent Portfolio Update">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>StateStreet Investment Opportunity</title>
+<title>StateStreet Investment Portfolio Update</title>
 <style>
 body{
     margin:0;
     padding:0;
-    background:#f4f4f4;
+    background:#f0f4f8;
     font-family:Arial, Helvetica, sans-serif;
     color:#333333;
 }
@@ -24,12 +24,16 @@ body{
     background:#ffffff;
     border-radius:8px;
     overflow:hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 .header{
     text-align:center;
     padding:30px 20px;
-    background:#ffffff;
-    border-bottom:1px solid #eeeeee;
+    background:#003366;
+}
+.header img{
+    width:120px;
+    height:auto;
 }
 .content{
     padding:30px;
@@ -53,16 +57,38 @@ body{
     font-size:12px;
     color:#777777;
     border-top:1px solid #eeeeee;
+    background:#f8f9fa;
 }
-.investment-image{
+.portfolio-image{
     text-align:center;
     margin:30px 0;
 }
-.investment-image img{
+.portfolio-image img{
     width:100%;
     max-width:500px;
     border-radius:6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.stats-row{
+    display:flex;
+    justify-content: space-around;
+    margin:30px 0;
+    text-align:center;
+}
+.stat-item{
+    flex:1;
+    padding:15px;
+    background:#f8f9fa;
+    border-radius:6px;
+    margin:0 10px;
+}
+.stat-number{
+    font-size:24px;
+    font-weight:bold;
+    color:#003366;
+}
+.stat-label{
+    font-size:12px;
+    color:#666;
 }
 </style>
 </head>
@@ -79,51 +105,59 @@ body{
 
         <div class="content">
 
-            <h2>Exclusive Portfolio Diversification Opportunity</h2>
+            <h2>Your Quarterly Portfolio Review is Available</h2>
 
             <p>Dear {{firstName}},</p>
 
             <p>
-                As a valued client of StateStreet Investment, we are reaching out to share your latest portfolio 
-                update that aligns with your financial goals and risk profile. Our team of senior analysts has 
-                reviewed your current holdings and prepared insights that could help you stay on track with 
-                your investment objectives.
+                We are pleased to inform you that your Q{{currentQuarter}} {{currentYear}} portfolio review is now ready 
+                for you to view. Our investment team has analyzed your current asset allocation and prepared 
+                personalized recommendations to help you stay on track with your financial objectives.
             </p>
 
-            <p>
-                This limited-time opportunity provides access to diversified assets across technology, 
-                renewable energy, and healthcare sectors – all vetted by our 30+ years of investment 
-                expertise. We believe this could be an excellent addition to your current investment strategy.
-            </p>
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="stat-number">+8.2%</div>
+                    <div class="stat-label">YTD Returns</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Asset Classes</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">3.4%</div>
+                    <div class="stat-label">Below Benchmark Volatility</div>
+                </div>
+            </div>
 
             <p>
-                To learn more about this opportunity and schedule a personalized consultation with one of 
-                our investment brokers, please click the link below to access your dedicated dashboard.
+                Inside your personalized review, you'll find detailed performance metrics, risk analysis, 
+                and strategic adjustments we believe could enhance your portfolio's performance in the 
+                coming quarters. Schedule a call with your dedicated advisor to discuss these findings in detail.
             </p>
 
             <p style="text-align:center;">
                 <a href="https://statestreetinvestment.vercel.app/" class="button">
-                    Explore Investment Opportunities
+                    View Your Portfolio Review
                 </a>
             </p>
 
-            <div class="investment-image">
+            <div class="portfolio-image">
                 <a href="https://statestreetinvestment.vercel.app/">
                     <img src="https://i.pinimg.com/1200x/4f/9c/12/4f9c1283b301be47c1b36e49c04cd34d.jpg"
-                         alt="StateStreet Investment - Building Your Financial Future">
+                         alt="StateStreet Investment - Your Financial Success is Our Priority">
                 </a>
             </div>
 
             <p>
-                Should you have any questions or wish to discuss your portfolio in detail, please do not 
-                hesitate to reply directly to this email. Our team is always available to provide the 
-                guidance you need to make informed investment decisions.
+                If you have any immediate questions or would like to reschedule your quarterly review meeting, 
+                please don't hesitate to reach out directly to your investment advisor or reply to this email.
             </p>
 
             <p>
                 Sincerely,<br>
-                <strong>StateStreet Investment Team</strong><br>
-                Your Trusted Investment Partners
+                <strong>StateStreet Investment Client Services</strong><br>
+                Building Long-Term Financial Partnerships
             </p>
 
         </div>
@@ -142,8 +176,9 @@ body{
             </p>
 
             <p>
-                This communication is intended solely for the addressee. If you are not the intended recipient, 
-                please notify us immediately. Investment involves risk. Past performance is not indicative of future results.
+                This communication is intended solely for the addressee. Investment involves risk. 
+                Past performance is not indicative of future results. Please read all offering documents 
+                carefully before investing.
             </p>
             <p>
                 If you no longer wish to receive these communications, please reply to this email with "unsubscribe" in the subject line.
