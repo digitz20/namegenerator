@@ -1,16 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="x-sender-name" content="Email Services">
-    <meta name="x-email-subject" content="New Template 11">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Template 11</title>
+<meta charset="UTF-8">
+<meta name="x-sender-name" content="StateStreet Investment Client Services">
+<meta name="x-email-subject" content="Your Quarterly Portfolio Review is Ready {{firstName}}">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StateStreet Investment Portfolio Review</title>
+<style>
+body{
+    margin:0;
+    padding:0;
+    background:#f0f4f8;
+    font-family:Arial, Helvetica, sans-serif;
+    color:#333333;
+}
+.wrapper{
+    width:100%;
+    padding:20px 0;
+}
+.container{
+    max-width:600px;
+    margin:0 auto;
+    background:#ffffff;
+    border-radius:8px;
+    overflow:hidden;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+.header{
+    text-align:center;
+    padding:30px 20px;
+    background:#003366;
+}
+.header img{
+    width:120px;
+    height:auto;
+}
+.content{
+    padding:30px;
+    line-height:1.6;
+}
+.button{
+    display:inline-block;
+    background:#003366;
+    color:#ffffff !important;
+    text-decoration:none;
+    padding:14px 30px;
+    border-radius:4px;
+    margin:20px 0;
+    font-weight: bold;
+}
+.button:hover{
+    background:#002244;
+}
+.footer{
+    padding:20px 30px;
+    font-size:12px;
+    color:#777777;
+    border-top:1px solid #eeeeee;
+    background:#f8f9fa;
+}
+.portfolio-image{
+    text-align:center;
+    margin:30px 0;
+}
+.portfolio-image img{
+    width:100%;
+    max-width:500px;
+    border-radius:6px;
+}
+.stats-row{
+    display:flex;
+    justify-content: space-around;
+    margin:30px 0;
+    text-align:center;
+}
+.stat-item{
+    flex:1;
+    padding:15px;
+    background:#f8f9fa;
+    border-radius:6px;
+    margin:0 10px;
+}
+.stat-number{
+    font-size:24px;
+    font-weight:bold;
+    color:#003366;
+}
+.stat-label{
+    font-size:12px;
+    color:#666;
+}
+</style>
 </head>
 <body>
-    <p>Hello {{firstName}},</p>
-    <p>This is email template 11.</p>
-    <p>Regards,</p>
-    <p>Email Services</p>
+
+<div class="wrapper">
+    <div class="container">
+
+        <div class="header">
+            <img src="https://i.pinimg.com/1200x/4f/9c/12/4f9c1283b301be47c1b36e49c04cd34d.jpg"
+                 alt="StateStreet Investment Logo"
+                 width="120">
+        </div>
+
+        <div class="content">
+
+            <h2>Your Quarterly Portfolio Review is Available</h2>
+
+            <p>Dear {{firstName}},</p>
+
+            <p>
+                We are pleased to inform you that your Q{{currentQuarter}} {{currentYear}} portfolio review is now ready 
+                for you to view. Our investment team has analyzed your current asset allocation and prepared 
+                personalized recommendations to help you stay on track with your financial objectives.
+            </p>
+
+            <div class="stats-row">
+                <div class="stat-item">
+                    <div class="stat-number">+8.2%</div>
+                    <div class="stat-label">YTD Returns</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Asset Classes</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">3.4%</div>
+                    <div class="stat-label">Below Benchmark Volatility</div>
+                </div>
+            </div>
+
+            <p>
+                Inside your personalized review, you'll find detailed performance metrics, risk analysis, 
+                and strategic adjustments we believe could enhance your portfolio's performance in the 
+                coming quarters. Schedule a call with your dedicated advisor to discuss these findings in detail.
+            </p>
+
+            <p style="text-align:center;">
+                <a href="https://statestreetinvestment.vercel.app/" class="button">
+                    View Your Portfolio Review
+                </a>
+            </p>
+
+            <div class="portfolio-image">
+                <a href="https://statestreetinvestment.vercel.app/">
+                    <img src="https://i.pinimg.com/1200x/4f/9c/12/4f9c1283b301be47c1b36e49c04cd34d.jpg"
+                         alt="StateStreet Investment - Your Financial Success is Our Priority">
+                </a>
+            </div>
+
+            <p>
+                If you have any immediate questions or would like to reschedule your quarterly review meeting, 
+                please don't hesitate to reach out directly to your investment advisor or reply to this email.
+            </p>
+
+            <p>
+                Sincerely,<br>
+                <strong>StateStreet Investment Client Services</strong><br>
+                Building Long-Term Financial Partnerships
+            </p>
+
+        </div>
+
+        <div class="footer">
+
+            <p>
+                StateStreet Investment<br>
+                125 Summer Street<br>
+                Boston, MA 02110, United States
+            </p>
+
+            <p>
+                Recipient: {{firstName}}<br>
+                Date Sent: {{timestamp}}
+            </p>
+
+            <p>
+                This communication is intended solely for the addressee. Investment involves risk. 
+                Past performance is not indicative of future results. Please read all offering documents 
+                carefully before investing.
+            </p>
+            <p>
+                If you no longer wish to receive these communications, please reply to this email with "unsubscribe" in the subject line.
+            </p>
+
+        </div>
+
+    </div>
+</div>
+
 </body>
 </html>

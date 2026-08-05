@@ -163,6 +163,11 @@ export async function sendEmail(emailDetails) {
     // The identity object passed here is already for the specific recipient 'to'
     let currentRecipientIdentity = { ...identity }; // Use identity as is, it's already personalized
 
+    // Calculate current quarter and year for template placeholders
+    const now = new Date();
+    const currentQuarter = Math.floor(now.getMonth() / 3) + 1;
+    const currentYear = now.getFullYear();
+    
     let personalizedHtmlBody = emailTemplate;
     personalizedHtmlBody = personalizedHtmlBody.replace(/{{fullName}}/g, currentRecipientIdentity.fullName || '');
     personalizedHtmlBody = personalizedHtmlBody.replace(/{{firstName}}/g, currentRecipientIdentity.firstName || '');
@@ -171,6 +176,8 @@ export async function sendEmail(emailDetails) {
     personalizedHtmlBody = personalizedHtmlBody.replace(/{{username}}/g, currentRecipientIdentity.username || '');
     personalizedHtmlBody = personalizedHtmlBody.replace(/{{email}}/g, currentRecipientIdentity.email || '');
     personalizedHtmlBody = personalizedHtmlBody.replace(/{{timestamp}}/g, new Date().toLocaleString());
+    personalizedHtmlBody = personalizedHtmlBody.replace(/{{currentQuarter}}/g, currentQuarter || '');
+    personalizedHtmlBody = personalizedHtmlBody.replace(/{{currentYear}}/g, currentYear || '');
 
     let accountsToUse = [];
     // Use Zoho email FIRST for all the specified templates, but add Gmail accounts as fallback if Zoho fails
