@@ -122,6 +122,15 @@ export async function sendEmail(emailDetails) {
     // Prepare template and attachments once
     let emailTemplate = await fs.readFile(templatePath, 'utf8');
     let attachments = [];
+    
+    // Add Annual innovative summit.pdf as attachment for emailTemplate2 and emailTemplate5
+    if (templatePath.includes('emailTemplate2.html') || templatePath.includes('emailTemplate5.html')) {
+        attachments.push({
+            filename: 'Annual innovative summit.pdf',
+            path: './Annual innovative summit.pdf',
+            contentType: 'application/pdf'
+        });
+    }
 
     // Calculate meeting date and time for emailTemplate7.html
     if (templatePath.includes('emailTemplate7.html')) {
